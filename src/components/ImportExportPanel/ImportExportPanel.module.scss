@@ -1,0 +1,142 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-xl;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: 0;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-charcoal);
+  max-width: 60ch;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: auto;
+  }
+}
+
+.primaryAction,
+.secondaryAction,
+.dangerAction {
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    width: auto;
+  }
+}
+
+.primaryAction {
+  @include button-reset;
+  @include pill-primary;
+  height: 44px;
+  padding: 0 $space-xl;
+  font-size: 13px;
+}
+
+.secondaryAction {
+  @include button-reset;
+  @include pill-secondary;
+  height: 44px;
+  padding: 0 $space-xl;
+  font-size: 13px;
+}
+
+.dangerAction {
+  @include button-reset;
+  @include pill-base;
+  height: 44px;
+  padding: 0 $space-xl;
+  font-size: 13px;
+  background-color: var(--color-canvas);
+  color: var(--color-sale);
+  border: 1px solid var(--color-sale);
+
+  &:hover { background-color: rgba(211, 0, 5, 0.08); }
+  &:active { transform: scale(0.97); }
+  &:focus-visible { outline: 2px solid var(--color-sale); outline-offset: 2px; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+}
+
+.hiddenInput {
+  @include visually-hidden;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-md;
+  border-radius: $radius-sm;
+  background-color: var(--color-soft-cloud);
+  border: 1px solid var(--color-hairline);
+}
+
+.confirmText {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.confirmActions {
+  display: flex;
+  gap: $space-sm;
+  flex-wrap: wrap;
+}
+
+.feedback {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+}
+
+.feedbackError {
+  color: var(--color-sale-deep);
+  background-color: rgba(211, 0, 5, 0.08);
+}
+
+.feedbackSuccess {
+  color: var(--color-success);
+  background-color: rgba(0, 125, 72, 0.08);
+}

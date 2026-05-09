@@ -1,0 +1,131 @@
+@use "../styles/variables" as *;
+@use "../styles/mixins" as *;
+@use "../styles/team-colors";
+@import "flag-icons/css/flag-icons.min.css";
+
+:root {
+  --color-ink: #{$color-ink};
+  --color-canvas: #{$color-canvas};
+  --color-on-primary: #{$color-on-primary};
+  --color-soft-cloud: #{$color-soft-cloud};
+  --color-charcoal: #{$color-charcoal};
+  --color-ash: #{$color-ash};
+  --color-mute: #{$color-mute};
+  --color-stone: #{$color-stone};
+  --color-hairline: #{$color-hairline};
+  --color-hairline-soft: #{$color-hairline-soft};
+
+  --color-sale: #{$color-sale};
+  --color-sale-deep: #{$color-sale-deep};
+  --color-success: #{$color-success};
+  --color-success-bright: #{$color-success-bright};
+  --color-info: #{$color-info};
+  --color-info-deep: #{$color-info-deep};
+
+  --color-accent-pink: #{$color-accent-pink};
+  --color-accent-pink-soft: #{$color-accent-pink-soft};
+  --color-accent-purple-soft: #{$color-accent-purple-soft};
+  --color-accent-purple-pale: #{$color-accent-purple-pale};
+  --color-accent-teal: #{$color-accent-teal};
+  --color-accent-pink-deep: #{$color-accent-pink-deep};
+
+  --space-xxs: #{$space-xxs};
+  --space-xs: #{$space-xs};
+  --space-sm: #{$space-sm};
+  --space-md: #{$space-md};
+  --space-lg: #{$space-lg};
+  --space-xl: #{$space-xl};
+  --space-xxl: #{$space-xxl};
+  --space-section: #{$space-section};
+
+  --radius-none: #{$radius-none};
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-full: #{$radius-full};
+
+  --layout-max-width: #{$layout-max-width};
+  --layout-content-gutter: #{$layout-content-gutter-mobile};
+  --layout-nav-height: #{$layout-nav-height};
+
+  --font-family-display: var(--font-display, "Bebas Neue"), "Helvetica Now Display Medium", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-text: var(--font-text, "Inter"), "Helvetica Now Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  color-scheme: light;
+}
+
+@include breakpoint-up(md) {
+  :root {
+    --layout-content-gutter: #{$layout-content-gutter-desktop};
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-family-text);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+::selection {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.fi {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}

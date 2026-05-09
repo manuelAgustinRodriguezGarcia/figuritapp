@@ -1,0 +1,165 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.summary {
+  display: grid;
+  gap: $space-xl;
+  padding: $space-xl;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+
+  @include breakpoint-up(md) {
+    padding: $space-section;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
+    gap: $space-section;
+    align-items: center;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.title {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: $space-md;
+  font-family: var(--font-family-display);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+.percent {
+  font-size: clamp(56px, 12vw, 96px);
+  color: var(--color-ink);
+  text-transform: uppercase;
+}
+
+.titleLabel {
+  font-family: var(--font-family-text);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-charcoal);
+  font-weight: 500;
+}
+
+.progress {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: $radius-full;
+  background-color: var(--color-soft-cloud);
+  overflow: hidden;
+}
+
+.progress::-webkit-progress-bar {
+  background-color: var(--color-soft-cloud);
+  border-radius: $radius-full;
+}
+
+.progress::-webkit-progress-value {
+  background-color: var(--color-ink);
+  border-radius: $radius-full;
+  transition: width $transition-base;
+}
+
+.progress::-moz-progress-bar {
+  background-color: var(--color-ink);
+  border-radius: $radius-full;
+}
+
+.progressReadout {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-mute);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $space-sm;
+
+  @include breakpoint-up(sm) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @include breakpoint-up(md) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  padding: $space-md;
+  border-radius: $radius-sm;
+  background-color: var(--color-soft-cloud);
+  color: var(--color-ink);
+  min-height: 96px;
+  justify-content: space-between;
+}
+
+.statInk {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+}
+
+.statAccent {
+  background-color: var(--color-accent-pink-soft);
+  color: var(--color-accent-pink-deep);
+}
+
+.statDefault {
+  background-color: var(--color-soft-cloud);
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.statValue {
+  font-family: var(--font-family-display);
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.statSublabel {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}

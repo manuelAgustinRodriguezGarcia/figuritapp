@@ -1,0 +1,399 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  z-index: 25;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: $space-sm;
+  padding: $space-sm var(--layout-content-gutter);
+  background-color: var(--color-canvas);
+  border-top: 1px solid var(--color-hairline);
+  box-shadow: 0 -8px 16px rgba(17, 17, 17, 0.04);
+
+  @include breakpoint-up(md) {
+    position: sticky;
+    top: calc(var(--layout-nav-height) + $space-sm);
+    bottom: auto;
+    left: auto;
+    right: auto;
+    z-index: 5;
+    flex-direction: column;
+    padding: $space-md;
+    gap: $space-md;
+    background-color: var(--color-canvas);
+    border: 1px solid var(--color-hairline);
+    border-radius: $radius-md;
+    box-shadow: none;
+  }
+}
+
+.searchRow {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.searchLabel {
+  @include visually-hidden;
+}
+
+.searchPill {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+  height: 44px;
+  background-color: var(--color-soft-cloud);
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  transition: background-color $transition-base, border-color $transition-base;
+
+  &:focus-within {
+    background-color: var(--color-canvas);
+    border-color: var(--color-ink);
+  }
+}
+
+.searchIcon {
+  font-size: 16px;
+  color: var(--color-mute);
+}
+
+.searchInput {
+  flex: 1;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  font-weight: 500;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--color-mute);
+    font-weight: 400;
+  }
+
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration,
+  &::-webkit-search-results-button,
+  &::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  &::-ms-clear,
+  &::-ms-reveal {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+.clearButton {
+  @include button-reset;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.chipRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-xs;
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    display: flex;
+    flex-wrap: wrap;
+    grid-template-columns: none;
+    width: auto;
+  }
+}
+
+.chip {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 $space-md;
+  border-radius: $radius-full;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: background-color $transition-base, color $transition-base, border-color $transition-base;
+
+  &:hover {
+    border-color: var(--color-ink);
+  }
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  @include breakpoint-up(md) {
+    width: auto;
+    height: 36px;
+    font-size: 13px;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+  }
+}
+
+.chipActive {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+  border-color: var(--color-ink);
+}
+
+.chipLate {
+  color: var(--color-success);
+  border-color: rgba(0, 125, 72, 0.45);
+  background-color: rgba(0, 125, 72, 0.07);
+
+  &:hover {
+    border-color: var(--color-success);
+    background-color: rgba(0, 125, 72, 0.12);
+  }
+}
+
+.chipLateActive {
+  color: var(--color-on-primary);
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+
+  &:hover {
+    background-color: #006d3f;
+    border-color: #006d3f;
+  }
+}
+
+.chipNola {
+  color: var(--color-sale);
+  border-color: rgba(211, 0, 5, 0.45);
+  background-color: rgba(211, 0, 5, 0.06);
+
+  &:hover {
+    border-color: var(--color-sale);
+    background-color: rgba(211, 0, 5, 0.11);
+  }
+}
+
+.chipNolaActive {
+  color: var(--color-on-primary);
+  background-color: var(--color-sale);
+  border-color: var(--color-sale);
+
+  &:hover {
+    background-color: var(--color-sale-deep);
+    border-color: var(--color-sale-deep);
+  }
+}
+
+.chipDesktopOnly {
+  display: none;
+
+  @include breakpoint-up(md) {
+    display: inline-flex;
+  }
+}
+
+.selectRow {
+  display: grid;
+  gap: $space-sm;
+  grid-template-columns: 1fr 1fr;
+}
+
+.selectRowDesktopOnly {
+  display: none;
+
+  @include breakpoint-up(md) {
+    display: grid;
+  }
+}
+
+.selectField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  min-width: 0;
+}
+
+.selectLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+  display: none;
+
+  @include breakpoint-up(md) {
+    display: block;
+  }
+}
+
+.selectTrigger {
+  @include button-reset;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+  width: 100%;
+  height: 44px;
+  padding: 0 $space-md 0 $space-md;
+  border-radius: $radius-md;
+  background-color: var(--color-soft-cloud);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color $transition-base, border-color $transition-base;
+
+  &:hover {
+    background-color: #ececec;
+  }
+
+  &:focus-visible,
+  &.selectTriggerOpen {
+    border-color: var(--color-ink);
+    background-color: var(--color-canvas);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.selectValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectChevron {
+  position: relative;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    width: 7px;
+    height: 2px;
+    border-radius: $radius-full;
+    background-color: var(--color-ink);
+    transition: transform $transition-base;
+  }
+
+  &::before {
+    left: 0;
+    transform: rotate(45deg);
+  }
+
+  &::after {
+    right: 0;
+    transform: rotate(-45deg);
+  }
+
+  .selectTriggerOpen &::before {
+    transform: rotate(-45deg);
+  }
+
+  .selectTriggerOpen &::after {
+    transform: rotate(45deg);
+  }
+}
+
+.selectPopover {
+  position: absolute;
+  z-index: 20;
+  top: auto;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 288px;
+  padding: $space-xs;
+  overflow-y: auto;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-ink);
+  box-shadow: 0 -16px 36px rgba(17, 17, 17, 0.12);
+  @include scrollbar-thin;
+
+  @include breakpoint-up(md) {
+    top: calc(100% + 6px);
+    bottom: auto;
+    box-shadow: 0 16px 36px rgba(17, 17, 17, 0.12);
+  }
+}
+
+.selectOption {
+  @include button-reset;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: $space-sm $space-md;
+  border-radius: $radius-sm;
+  color: var(--color-charcoal);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  transition: background-color $transition-base, color $transition-base;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-soft-cloud);
+    color: var(--color-ink);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+  }
+}
+
+.selectOptionActive {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-ink);
+    color: var(--color-on-primary);
+  }
+}

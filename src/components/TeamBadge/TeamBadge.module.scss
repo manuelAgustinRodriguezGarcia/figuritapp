@@ -1,0 +1,64 @@
+@use "../../styles/variables" as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-xs $space-md;
+  border-radius: $radius-lg;
+  background-color: var(--color-soft-cloud);
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.sizeMd {
+  height: 32px;
+}
+
+.sizeSm {
+  height: 26px;
+  padding: 2px $space-sm;
+  font-size: 12px;
+  gap: $space-xs;
+}
+
+.code {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.name {
+  color: var(--color-charcoal);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.colors {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.swatch {
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.swatchPrimary {
+  background-color: var(--team-primary, var(--color-ink));
+}
+
+.swatchSecondary {
+  background-color: var(--team-secondary, var(--color-canvas));
+}
+
+.swatchAccent {
+  background-color: var(--team-accent, var(--color-mute));
+}

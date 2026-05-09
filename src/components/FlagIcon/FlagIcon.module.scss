@@ -1,0 +1,25 @@
+.flag {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sizeSm {
+  width: 16px;
+  height: 12px;
+}
+
+.sizeMd {
+  width: 22px;
+  height: 16px;
+}
+
+.sizeLg {
+  width: 32px;
+  height: 24px;
+}
+
+.sizeXl {
+  width: 48px;
+  height: 36px;
+}

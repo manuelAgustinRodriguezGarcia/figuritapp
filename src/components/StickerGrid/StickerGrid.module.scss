@@ -1,0 +1,35 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.grid {
+  display: grid;
+  gap: $space-sm;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @include breakpoint-up(sm) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @include breakpoint-up(md) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $space-md;
+  }
+
+  @include breakpoint-up(lg) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.compact {
+  @include breakpoint-up(md) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  @include breakpoint-up(lg) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.cell {
+  display: flex;
+}

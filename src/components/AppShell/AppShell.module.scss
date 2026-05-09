@@ -1,0 +1,66 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background-color: var(--color-canvas);
+}
+
+.main {
+  flex: 1;
+  padding: $space-xl 0 calc(#{$space-section} + 72px + env(safe-area-inset-bottom, 0px));
+
+  @include breakpoint-up(md) {
+    padding: $space-section 0 $space-section;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  padding: 0 var(--layout-content-gutter);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xl;
+
+  @include breakpoint-up(md) {
+    gap: $space-section;
+  }
+}
+
+.footer {
+  background-color: var(--color-canvas);
+  border-top: 1px solid var(--color-hairline);
+  padding: $space-xl 0 calc(72px + env(safe-area-inset-bottom, 0px));
+
+  @include breakpoint-up(md) {
+    padding: $space-xl 0;
+  }
+}
+
+.footerCopy {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  font-size: 12px;
+  color: var(--color-mute);
+}
+
+.footerBrand {
+  font-family: var(--font-family-display);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.footerSub {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}

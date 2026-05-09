@@ -1,0 +1,196 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xl;
+
+  @include breakpoint-up(md) { gap: $space-section; }
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: $space-xl;
+  border-radius: $radius-md;
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(211, 0, 5, 0.35) 0%, transparent 60%),
+      radial-gradient(140% 100% at 0% 100%, rgba(17, 81, 255, 0.32) 0%, transparent 55%);
+    z-index: -1;
+    opacity: 0.9;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: -20%;
+    bottom: -30%;
+    width: 70%;
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 65%);
+    z-index: -1;
+  }
+
+  @include breakpoint-up(md) {
+    padding: $space-section;
+    min-height: 320px;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: clamp(56px, 12vw, 120px);
+  font-weight: 500;
+  line-height: 0.9;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  letter-spacing: 0;
+}
+
+.titleTop {
+  color: var(--color-on-primary);
+}
+
+.titleBottom {
+  color: var(--color-sale);
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+
+  @include breakpoint-up(md) {
+    font-size: 16px;
+  }
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  margin-top: $space-sm;
+}
+
+.primaryAction {
+  @include button-reset;
+  @include pill-base;
+  background-color: var(--color-on-primary);
+  color: var(--color-ink);
+  height: 48px;
+  padding: 0 $space-xl;
+  font-size: 14px;
+
+  &:hover { background-color: #f5f5f5; }
+  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--color-on-primary);
+    outline-offset: 2px;
+  }
+}
+
+.secondaryAction {
+  @include button-reset;
+  @include pill-base;
+  background-color: transparent;
+  color: var(--color-on-primary);
+  height: 48px;
+  padding: 0 $space-xl;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  &:hover { border-color: var(--color-on-primary); }
+  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--color-on-primary);
+    outline-offset: 2px;
+  }
+}
+
+.quickGrid {
+  display: grid;
+  gap: $space-md;
+  grid-template-columns: 1fr;
+
+  @include breakpoint-up(md) {
+    grid-template-columns: 1fr 1fr;
+    gap: $space-xl;
+  }
+}
+
+.quickCard {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  padding: $space-xl;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+}
+
+.quickEyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.quickTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: 0;
+}
+
+.quickBody {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-charcoal);
+  line-height: 1.5;
+}
+
+.quickLink {
+  @include button-reset;
+  align-self: flex-start;
+  margin-top: $space-sm;
+  padding: $space-sm $space-md;
+  border-radius: $radius-full;
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background-color $transition-base, transform $transition-snap;
+
+  &:hover { background-color: #000; }
+  &:active { transform: scale(0.97); }
+  &:focus-visible { @include focus-ring; }
+}

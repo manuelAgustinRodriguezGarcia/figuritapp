@@ -1,0 +1,66 @@
+// Design tokens mapped from Nike DESIGN.md to SCSS + CSS variables.
+// Anything visual in components reads through CSS custom properties so we can
+// tweak the system globally and react to media queries.
+
+// Color tokens (forwarded as CSS custom properties in globals.scss).
+$color-ink: #111111;
+$color-canvas: #ffffff;
+$color-on-primary: #ffffff;
+$color-soft-cloud: #f5f5f5;
+$color-charcoal: #39393b;
+$color-ash: #4b4b4d;
+$color-mute: #707072;
+$color-stone: #9e9ea0;
+$color-hairline: #cacacb;
+$color-hairline-soft: #e5e5e5;
+
+$color-sale: #d30005;
+$color-sale-deep: #780700;
+$color-success: #007d48;
+$color-success-bright: #1eaa52;
+$color-info: #1151ff;
+$color-info-deep: #0034e3;
+
+$color-accent-pink: #ed1aa0;
+$color-accent-pink-soft: #ffb0dd;
+$color-accent-purple-soft: #beaffd;
+$color-accent-purple-pale: #d6d1ff;
+$color-accent-teal: #0a7281;
+$color-accent-pink-deep: #4c012d;
+
+// Spacing — 8px rhythm with section step at 48px.
+$space-xxs: 2px;
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 12px;
+$space-lg: 18px;
+$space-xl: 24px;
+$space-xxl: 30px;
+$space-section: 48px;
+
+// Radius — pill geometry.
+$radius-none: 0px;
+$radius-sm: 18px;
+$radius-md: 24px;
+$radius-lg: 30px;
+$radius-full: 9999px;
+
+// Layout.
+$layout-max-width: 1440px;
+$layout-content-gutter-mobile: 16px;
+$layout-content-gutter-desktop: 32px;
+$layout-nav-height: 64px;
+
+// Breakpoints (mobile-first).
+$bp-sm: 600px;
+$bp-md: 1024px;
+$bp-lg: 1200px;
+$bp-xl: 1440px;
+
+// Motion tokens.
+$transition-base: 180ms cubic-bezier(0.2, 0, 0, 1);
+$transition-snap: 120ms cubic-bezier(0.2, 0, 0, 1);
+
+// Subtle elevation (the only "depth" Nike uses is hairlines).
+$shadow-hairline-bottom: inset 0 -1px 0 #{$color-hairline-soft};
+$shadow-hairline-top: inset 0 1px 0 #{$color-hairline-soft};

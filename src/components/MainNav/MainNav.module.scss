@@ -1,0 +1,191 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background-color: var(--color-canvas);
+  box-shadow: $shadow-hairline-bottom;
+  height: var(--layout-nav-height);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+  height: 100%;
+  width: 100%;
+  max-width: var(--layout-max-width);
+  padding: 0 var(--layout-content-gutter);
+  margin: 0 auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  color: var(--color-ink);
+  border-radius: $radius-sm;
+  padding: $space-xs $space-sm;
+
+  &:hover { background-color: var(--color-soft-cloud); }
+  &:focus-visible { @include focus-ring; }
+}
+
+.brandMark {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.brandText {
+  font-family: var(--font-family-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.brandAccent {
+  color: var(--color-sale);
+}
+
+.brandSub {
+  display: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+  padding-left: $space-sm;
+  border-left: 1px solid var(--color-hairline);
+  margin-left: $space-xs;
+
+  @include breakpoint-up(sm) { display: inline-flex; }
+}
+
+// Top tabs — visible on tablet+ only.
+.tabsTop {
+  display: none;
+  align-items: center;
+
+  @include breakpoint-up(md) {
+    display: inline-flex;
+  }
+}
+
+.tabList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tabListTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background-color: var(--color-soft-cloud);
+  border-radius: $radius-full;
+}
+
+.tabItem {
+  display: inline-flex;
+}
+
+// Top tab — horizontal pill: icon next to label.
+.tab {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-xs;
+  height: 36px;
+  padding: 0 $space-md;
+  border-radius: $radius-full;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-charcoal);
+  transition: background-color $transition-base, color $transition-base;
+
+  &:hover { color: var(--color-ink); }
+  &:focus-visible { @include focus-ring; }
+
+  @include breakpoint-up(sm) {
+    padding: 0 $space-lg;
+    font-size: 14px;
+  }
+}
+
+.tabActive {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+
+  &:hover { color: var(--color-on-primary); }
+}
+
+// Bottom nav — visible on mobile only.
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background-color: var(--color-canvas);
+  border-top: 1px solid var(--color-hairline);
+  padding: $space-sm var(--layout-content-gutter) calc(env(safe-area-inset-bottom, 0px) + #{$space-sm});
+
+  @include breakpoint-up(md) {
+    display: none;
+  }
+}
+
+.tabListBottom {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-xs;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+// Bottom tab — vertical: icon above label.
+.tabBottom {
+  @include button-reset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 56px;
+  padding: 6px 4px;
+  border-radius: $radius-md;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-charcoal);
+  transition: background-color $transition-base, color $transition-base, transform $transition-snap;
+
+  &:hover { color: var(--color-ink); }
+  &:active { transform: scale(0.97); }
+  &:focus-visible { @include focus-ring; }
+}
+
+.tabBottomActive {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+
+  &:hover { color: var(--color-on-primary); }
+}
+
+.tabIcon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.tabLabel {
+  line-height: 1.2;
+}
