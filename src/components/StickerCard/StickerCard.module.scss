@@ -57,9 +57,134 @@
   }
 }
 
+.fwcGold {
+  &.missing {
+    background: linear-gradient(148deg, #f8ecc4 0%, #e8c547 42%, #c9a227 100%);
+    color: #2a1f00;
+    border-color: #a67c00;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      0 0 0 1px rgba(166, 124, 0, 0.22);
+
+    &:hover {
+      border-color: #8a6600;
+    }
+
+    &::after {
+      box-shadow: inset 0 0 0 1px rgba(90, 70, 20, 0.4);
+      opacity: 0.75;
+    }
+  }
+
+  &.owned {
+    background: linear-gradient(148deg, #5c4500 0%, #7a5c00 45%, #3d2e00 100%);
+    color: #fceeb5;
+    border-color: #c9a227;
+    box-shadow:
+      inset 0 1px 0 rgba(252, 238, 181, 0.12),
+      0 0 0 1px rgba(201, 162, 39, 0.32);
+
+    &:hover {
+      background: linear-gradient(148deg, #4a3800 0%, #684f00 45%, #2e2300 100%);
+      border-color: #d4af37;
+    }
+
+    &::after {
+      box-shadow: inset 0 0 0 1px rgba(252, 238, 181, 0.32);
+      opacity: 0.5;
+    }
+  }
+
+  .specialPill {
+    background-color: rgba(42, 31, 0, 0.85);
+    color: #fceeb5;
+  }
+
+  &.owned .specialPill {
+    background-color: rgba(252, 238, 181, 0.2);
+    color: #fceeb5;
+  }
+}
+
+/* Albiceleste — Argentina team stickers stand out from the rest */
+.teamArgentina {
+  position: relative;
+  overflow: hidden;
+  border-width: 2px;
+
+  &.missing {
+    background: linear-gradient(158deg, #eef6fc 0%, #c5ddf3 38%, #8fc0e8 100%);
+    color: #0a1628;
+    border-color: #5b9bd4;
+    box-shadow:
+      0 0 0 1px rgba(246, 180, 14, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background: linear-gradient(
+        122deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.35) 48%,
+        transparent 58%
+      );
+    }
+
+    &:hover {
+      border-color: #3d7cb8;
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(246, 180, 14, 0.65),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  &.owned {
+    background: linear-gradient(148deg, #1e5588 0%, #123a5c 42%, #0a1f33 100%);
+    color: #f2f7fc;
+    border-color: #6aaee0;
+    box-shadow:
+      0 0 0 1px rgba(246, 180, 14, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: linear-gradient(148deg, #1a4a78 0%, #0f3250 42%, #08192a 100%);
+      border-color: #7eb8e8;
+    }
+  }
+
+  &.special.missing {
+    background: linear-gradient(158deg, #e4f0fa 0%, #b3d0ec 40%, #7eb0df 100%);
+  }
+
+  &.special::after {
+    box-shadow: inset 0 0 0 1px rgba(10, 22, 40, 0.45);
+    opacity: 0.55;
+  }
+
+  &.missing .specialPill {
+    background-color: rgba(10, 22, 40, 0.88);
+    color: #f6d87a;
+  }
+
+  &.owned .specialPill {
+    background-color: rgba(246, 180, 14, 0.95);
+    color: #0a1628;
+  }
+
+  .repeated {
+    background-color: #c62828;
+    color: #fff;
+  }
+}
+
 .head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: $space-sm;
   font-size: 11px;
@@ -68,6 +193,19 @@
   text-transform: uppercase;
   color: currentColor;
   opacity: 0.78;
+}
+
+/* Misma altura de cabecera con o sin pastilla Escudo/Equipo → el cuerpo alinea en la grilla */
+.headTeamTitles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
 }
 
 .section {
@@ -103,12 +241,76 @@
   padding-block: $space-xs;
 }
 
+.bodyTeam {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.teamBodyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Altura fija = 2 renglones (12px × 1.3 × 2) para alinear todas las selecciones */
+.playerNameSlot {
+  width: 100%;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.playerName {
+  font-family: var(--font-family-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: currentColor;
+  opacity: 0.9;
+  width: 100%;
+  min-width: 0;
+  max-height: 100%;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: left;
+  word-break: break-word;
+}
+
+.numberCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
 .number {
   font-family: var(--font-family-display);
   font-size: 32px;
   line-height: 1;
   letter-spacing: 0.02em;
   font-weight: 500;
+}
+
+/* Código tipo ARG6 en la grilla compacta de selecciones */
+.numberStickerCode {
+  font-size: clamp(17px, 4.8vw, 26px);
+  letter-spacing: 0.06em;
+  line-height: 0.95;
+  text-align: right;
 }
 
 .glyph {
@@ -152,13 +354,4 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-}
-
-.state {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: currentColor;
-  opacity: 0.6;
 }

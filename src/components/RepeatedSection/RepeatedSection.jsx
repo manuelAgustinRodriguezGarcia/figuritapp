@@ -3,15 +3,18 @@
 import { useId, useMemo, useState } from "react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
+import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
 import { normalizeStickerCode, getStickerByCode } from "@/utils/stickerCode";
 import styles from "./RepeatedSection.module.scss";
 
 function describeStickerSection(sticker) {
   switch (sticker.category) {
-    case "panini": return "Panini";
-    case "fwc": return "FWC";
-    case "team": return sticker.teamName;
-    default: return "";
+    case "fwc":
+      return "FWC";
+    case "team":
+      return sticker.teamName;
+    default:
+      return "";
   }
 }
 
@@ -55,7 +58,7 @@ export default function RepeatedSection({
     if (!normalized) {
       setFeedback({
         tone: "error",
-        message: "Código inválido. Probá con formatos como ARG1, ARG18, FWC5 o 0-0.",
+        message: "Código inválido. Probá con formatos como ARG1, ARG18, FWC5 o FWC00.",
       });
       return;
     }
@@ -94,7 +97,7 @@ export default function RepeatedSection({
               inputMode="text"
               autoComplete="off"
               spellCheck={false}
-              placeholder="Ej: ARG1, ARG18, FWC5, 0-0"
+              placeholder="Ej: ARG1, ARG18, FWC5, FWC00"
               value={rawCode}
               onChange={(event) => {
                 setRawCode(event.target.value);
@@ -144,9 +147,11 @@ export default function RepeatedSection({
                 <div className={styles.itemHead}>
                   {isTeam ? (
                     <FlagIcon flagCode={sticker.flagCode} label={sticker.teamName} size="lg" />
+                  ) : sticker.category === "fwc" ? (
+                    <FwcStickerVisual sticker={sticker} variant="list" isOwned />
                   ) : (
                     <span className={styles.itemGlyph} aria-hidden="true">
-                      {sticker.category === "panini" ? "★" : "◆"}
+                      ◆
                     </span>
                   )}
                   <div className={styles.itemTitles}>

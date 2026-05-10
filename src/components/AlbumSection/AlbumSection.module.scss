@@ -6,6 +6,7 @@
   flex-direction: column;
   gap: $space-xl;
   padding-bottom: 120px;
+  scroll-margin-top: var(--layout-nav-height);
 
   @include breakpoint-up(md) {
     padding-bottom: 0;

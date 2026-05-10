@@ -1,14 +1,14 @@
 // Sticker code parsing helpers.
 //
 // Canonical format used internally — natural number, no leading zero, no space:
-//   "0-0", "ARG1", "ARG18", "FWC5", "FWC19".
+//   "FWC00", "ARG1", "ARG18", "FWC5", "FWC19".
 //
 // Accepted user inputs (case-insensitive, ignores spaces/hyphens/underscores):
-//   "0-0", "00", "0 0",
+//   "FWC00", "FWC0", "0-0", "00", "0 0" (Panini logo → FWC00),
 //   "ARG1", "ARG01", "ARG001", "ARG 1", "ARG 18", "ARG-018", "arg1",
 //   "FWC1", "FWC01", "FWC005", "FWC 5", "fwc 5", "FWC-19".
 
-const PANINI_CODE = "0-0";
+const FWC00_CODE = "FWC00";
 
 function stripFormatting(input) {
   return String(input || "").replace(/[\s\-_.]/g, "").toUpperCase();
@@ -23,13 +23,14 @@ export function normalizeStickerCode(input) {
   const compact = stripFormatting(raw);
   if (!compact) return null;
 
-  // Panini sticker — accept "0-0", "00", "0 0".
-  if (compact === "00") return PANINI_CODE;
+  // Panini logo sticker — legacy "0-0" / "00" and explicit FWC00.
+  if (compact === "00") return FWC00_CODE;
 
-  // FWC stickers (1..19).
+  // FWC stickers (00 and 1..19).
   if (compact.startsWith("FWC")) {
     const numericPart = compact.slice(3);
     if (!/^\d+$/.test(numericPart)) return null;
+    if (numericPart === "00" || numericPart === "0") return FWC00_CODE;
     const num = Number.parseInt(numericPart, 10);
     if (!Number.isFinite(num) || num < 1 || num > 19) return null;
     return `FWC${num}`;
@@ -56,7 +57,6 @@ export function getStickerByCode(code, stickers) {
 
 export function getTeamCodeFromStickerCode(code) {
   if (!code) return null;
-  if (code === PANINI_CODE) return null;
   if (code.startsWith("FWC")) return null;
   const match = code.match(/^([A-Z]{3})\d{1,2}$/);
   return match ? match[1] : null;

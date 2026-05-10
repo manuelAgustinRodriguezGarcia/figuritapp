@@ -25,31 +25,48 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: $space-sm;
+  gap: $space-xs;
   color: var(--color-ink);
   border-radius: $radius-sm;
   padding: $space-xs $space-sm;
+  /* Una sola escala tipográfica: el logo usa 1em de alto y alinea con el texto */
+  font-size: 26px;
+
+  @include breakpoint-up(sm) {
+    font-size: 28px;
+  }
 
   &:hover { background-color: var(--color-soft-cloud); }
   &:focus-visible { @include focus-ring; }
 }
 
 .brandMark {
-  font-size: 18px;
-  font-weight: 700;
+  display: block;
+  height: 1em;
+  width: auto;
+  max-height: 1em;
+  max-width: 1.2em;
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .brandText {
   font-family: var(--font-family-display);
-  font-size: 22px;
+  font-size: inherit;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-ink);
   font-weight: 500;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
 }
 
 .brandAccent {
-  color: var(--color-sale);
+  color: var(--fifa-26-gold);
 }
 
 .brandSub {
@@ -82,17 +99,49 @@
   padding: 0;
 }
 
-.tabListTop {
+.tabListTopShell {
+  position: relative;
   display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 4px;
+  align-items: stretch;
   background-color: var(--color-soft-cloud);
   border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.tabListTop {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: stretch;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.tabIndicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: $radius-full;
+  background-color: var(--color-ink);
+  pointer-events: none;
+  z-index: 0;
+  transition:
+    transform 0.28s cubic-bezier(0.25, 0.1, 0.25, 1),
+    width 0.28s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: transform, width;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0.01ms;
+  }
 }
 
 .tabItem {
   display: inline-flex;
+  position: relative;
+  z-index: 1;
 }
 
 // Top tab — horizontal pill: icon next to label.
@@ -101,14 +150,17 @@
   display: inline-flex;
   align-items: center;
   gap: $space-xs;
-  height: 36px;
+  height: 100%;
   padding: 0 $space-md;
-  border-radius: $radius-full;
+  border-radius: 0;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--color-charcoal);
-  transition: background-color $transition-base, color $transition-base;
+  background-color: transparent;
+  transition: color $transition-base;
+  position: relative;
+  z-index: 1;
 
   &:hover { color: var(--color-ink); }
   &:focus-visible { @include focus-ring; }
@@ -120,7 +172,7 @@
 }
 
 .tabActive {
-  background-color: var(--color-ink);
+  background-color: transparent;
   color: var(--color-on-primary);
 
   &:hover { color: var(--color-on-primary); }

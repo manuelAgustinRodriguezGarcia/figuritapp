@@ -14,22 +14,24 @@
   overflow: hidden;
   padding: $space-xl;
   border-radius: $radius-md;
-  background-color: var(--color-ink);
+  background-color: $fifa-26-blue;
   color: var(--color-on-primary);
   display: flex;
   flex-direction: column;
   gap: $space-md;
   isolation: isolate;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   &::before {
     content: "";
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(120% 80% at 100% 0%, rgba(211, 0, 5, 0.35) 0%, transparent 60%),
-      radial-gradient(140% 100% at 0% 100%, rgba(17, 81, 255, 0.32) 0%, transparent 55%);
+      radial-gradient(115% 75% at 100% 0%, rgba($fifa-26-green, 0.55) 0%, transparent 58%),
+      radial-gradient(130% 90% at 0% 100%, rgba($fifa-26-gold, 0.22) 0%, transparent 52%),
+      radial-gradient(80% 60% at 50% 120%, rgba(0, 0, 0, 0.25) 0%, transparent 55%);
     z-index: -1;
-    opacity: 0.9;
+    opacity: 1;
   }
 
   &::after {
@@ -55,7 +57,7 @@
   font-weight: 700;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba($fifa-26-light-gray, 0.95);
 }
 
 .title {
@@ -75,7 +77,15 @@
 }
 
 .titleBottom {
-  color: var(--color-sale);
+  background: linear-gradient(
+    95deg,
+    $fifa-26-gold-bright 0%,
+    $fifa-26-gold 42%,
+    #b8941f 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .subtitle {
@@ -100,16 +110,17 @@
 .primaryAction {
   @include button-reset;
   @include pill-base;
-  background-color: var(--color-on-primary);
-  color: var(--color-ink);
+  background-color: $fifa-26-green;
+  color: var(--color-on-primary);
   height: 48px;
   padding: 0 $space-xl;
   font-size: 14px;
+  font-weight: 600;
 
-  &:hover { background-color: #f5f5f5; }
+  &:hover { filter: brightness(1.08); }
   &:active { transform: scale(0.97); }
   &:focus-visible {
-    outline: 2px solid var(--color-on-primary);
+    outline: 2px solid $fifa-26-gold-bright;
     outline-offset: 2px;
   }
 }
@@ -122,12 +133,15 @@
   height: 48px;
   padding: 0 $space-xl;
   font-size: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba($fifa-26-light-gray, 0.55);
 
-  &:hover { border-color: var(--color-on-primary); }
+  &:hover {
+    border-color: $fifa-26-light-gray;
+    background-color: rgba(255, 255, 255, 0.06);
+  }
   &:active { transform: scale(0.97); }
   &:focus-visible {
-    outline: 2px solid var(--color-on-primary);
+    outline: 2px solid $fifa-26-light-gray;
     outline-offset: 2px;
   }
 }

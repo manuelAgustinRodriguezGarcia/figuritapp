@@ -1,7 +1,21 @@
 import { COUNTRY_META } from "./countryMeta";
 import { FWC_STICKERS, STICKERS_PER_TEAM, SECTIONS } from "./albumConfig";
+import { PLAYER_STICKERS } from "./playerStickers";
 
-function buildSpecialSticker({ code, title, category }) {
+function buildPlayerNameLookup() {
+  const map = new Map();
+  for (const entry of PLAYER_STICKERS) {
+    if (entry.teamCode == null || entry.number == null) continue;
+    const key = `${entry.teamCode}:${Number(entry.number)}`;
+    map.set(key, entry.playerName);
+  }
+  return map;
+}
+
+const PLAYER_NAME_BY_TEAM_AND_NUMBER = buildPlayerNameLookup();
+
+function buildSpecialSticker(entry) {
+  const { code, title, category, ...rest } = entry;
   return {
     id: code,
     code,
@@ -10,6 +24,7 @@ function buildSpecialSticker({ code, title, category }) {
     title,
     type: "special",
     isSpecial: true,
+    ...rest,
   };
 }
 
@@ -17,6 +32,7 @@ function buildTeamSticker(team, number) {
   const numStr = String(number);
   const code = `${team.code}${numStr}`;
   const isEmblem = number === 1;
+  const playerName = PLAYER_NAME_BY_TEAM_AND_NUMBER.get(`${team.code}:${number}`);
   return {
     id: code,
     code,
@@ -29,6 +45,12 @@ function buildTeamSticker(team, number) {
     category: "team",
     type: isEmblem ? "foil-emblem" : "player",
     isSpecial: isEmblem,
+    ...(playerName
+      ? {
+          playerName,
+          title: playerName,
+        }
+      : {}),
   };
 }
 
@@ -57,11 +79,6 @@ export function generateAlbum() {
   }));
 
   const sections = [
-    {
-      id: SECTIONS.panini.id,
-      label: SECTIONS.panini.label,
-      stickerIds: stickers.filter((s) => s.category === "panini").map((s) => s.code),
-    },
     {
       id: SECTIONS.fwc.id,
       label: SECTIONS.fwc.label,

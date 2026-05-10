@@ -1,7 +1,32 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { STORAGE_KEY } from "@/data/albumConfig";
+import { LEGACY_PANINI_STICKER_CODE, STORAGE_KEY } from "@/data/albumConfig";
+
+const FWC00_CODE = "FWC00";
+
+function migrateLegacyOwnedKeys(owned) {
+  if (!owned || typeof owned !== "object") return {};
+  const next = { ...owned };
+  if (!Object.prototype.hasOwnProperty.call(next, LEGACY_PANINI_STICKER_CODE)) return next;
+  const legacyOwned = next[LEGACY_PANINI_STICKER_CODE] === true;
+  delete next[LEGACY_PANINI_STICKER_CODE];
+  if (legacyOwned) next[FWC00_CODE] = true;
+  return next;
+}
+
+function migrateLegacyDuplicateKeys(duplicates) {
+  if (!duplicates || typeof duplicates !== "object") return {};
+  const next = { ...duplicates };
+  if (!Object.prototype.hasOwnProperty.call(next, LEGACY_PANINI_STICKER_CODE)) return next;
+  const legacy = Number(next[LEGACY_PANINI_STICKER_CODE]) || 0;
+  delete next[LEGACY_PANINI_STICKER_CODE];
+  const current = Number(next[FWC00_CODE]) || 0;
+  const merged = Math.max(current, legacy);
+  if (merged > 0) next[FWC00_CODE] = merged;
+  else delete next[FWC00_CODE];
+  return next;
+}
 import { useLocalStorage } from "./useLocalStorage";
 
 const DEFAULT_PROGRESS = Object.freeze({
@@ -24,12 +49,12 @@ function sanitizeProgress(parsed, fallback) {
   const duplicates = isPlainObject(parsed.duplicates) ? { ...parsed.duplicates } : {};
 
   const cleanedOwned = {};
-  for (const [code, value] of Object.entries(owned)) {
+  for (const [code, value] of Object.entries(migrateLegacyOwnedKeys(owned))) {
     if (value === true) cleanedOwned[code] = true;
   }
 
   const cleanedDuplicates = {};
-  for (const [code, value] of Object.entries(duplicates)) {
+  for (const [code, value] of Object.entries(migrateLegacyDuplicateKeys(duplicates))) {
     const num = Number(value);
     if (Number.isInteger(num) && num > 0) cleanedDuplicates[code] = num;
   }

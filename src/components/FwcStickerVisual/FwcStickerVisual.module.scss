@@ -1,0 +1,76 @@
+@use "../../styles/variables" as *;
+
+.iconSlot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 24px;
+  border-radius: $radius-sm;
+  background-color: var(--color-soft-cloud);
+  color: var(--color-ink);
+  font-size: 16px;
+}
+
+.iconSlotSm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 22px;
+  border-radius: $radius-sm;
+  background-color: var(--color-soft-cloud);
+  color: var(--color-ink);
+  font-size: 14px;
+}
+
+.iconSlotOwned {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: var(--color-on-primary);
+}
+
+.lucide {
+  flex-shrink: 0;
+}
+
+.lucideGoldMissing {
+  color: #5c4300;
+  filter: drop-shadow(0 0 1px rgba(212, 175, 55, 0.45));
+}
+
+.lucideGoldOwned {
+  color: #fceeb5;
+  filter: drop-shadow(0 0 1px rgba(255, 215, 0, 0.35));
+}
+
+.iconSlotGoldMissing {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(90, 70, 20, 0.35);
+  color: inherit;
+}
+
+.iconSlotGoldOwned {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(252, 238, 181, 0.35);
+  color: inherit;
+}
+
+.iconSlotGoldMissingSm,
+.iconSlotGoldOwnedSm {
+  width: 28px;
+  height: 22px;
+  border-radius: $radius-sm;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconSlotGoldMissingSm {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(90, 70, 20, 0.35);
+}
+
+.iconSlotGoldOwnedSm {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(252, 238, 181, 0.35);
+}

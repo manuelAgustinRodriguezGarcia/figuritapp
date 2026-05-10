@@ -29,6 +29,14 @@
   --color-accent-teal: #{$color-accent-teal};
   --color-accent-pink-deep: #{$color-accent-pink-deep};
 
+  --fifa-26-green: #{$fifa-26-green};
+  --fifa-26-blue: #{$fifa-26-blue};
+  --fifa-26-red: #{$fifa-26-red};
+  --fifa-26-light-gray: #{$fifa-26-light-gray};
+  --fifa-26-heather: #{$fifa-26-heather};
+  --fifa-26-gold: #{$fifa-26-gold};
+  --fifa-26-gold-bright: #{$fifa-26-gold-bright};
+
   --space-xxs: #{$space-xxs};
   --space-xs: #{$space-xs};
   --space-sm: #{$space-sm};
@@ -78,6 +86,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {

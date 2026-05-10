@@ -10,8 +10,11 @@ export default function TeamSection({ team, stickers, owned, duplicates, stats, 
   const obtained = stats?.obtained ?? 0;
   const total = stats?.total ?? stickers.length;
 
+  const sectionClass =
+    team.code === "ARG" ? `${styles.section} ${styles.sectionArgentina} ${teamColorClass}` : `${styles.section} ${teamColorClass}`;
+
   return (
-    <article className={`${styles.section} ${teamColorClass}`} aria-label={`Selección de ${team.name}`}>
+    <article className={sectionClass} aria-label={`Selección de ${team.name}`}>
       <header className={styles.header}>
         <div className={styles.identity}>
           <FlagIcon flagCode={team.flagCode} label={team.name} size="lg" />

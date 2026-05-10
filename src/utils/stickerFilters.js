@@ -49,6 +49,7 @@ export function applyStickerFilters(stickers, filters, progress) {
         s.teamCode,
         s.teamName,
         s.title,
+        s.playerName,
         s.category,
       ]
         .filter(Boolean)

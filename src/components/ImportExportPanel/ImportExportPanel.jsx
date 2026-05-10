@@ -1,7 +1,14 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
+import { LEGACY_PANINI_STICKER_CODE } from "@/data/albumConfig";
 import styles from "./ImportExportPanel.module.scss";
+
+const FWC00_CODE = "FWC00";
+
+function canonicalStickerCodeForImport(code) {
+  return code === LEGACY_PANINI_STICKER_CODE ? FWC00_CODE : code;
+}
 
 function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -28,14 +35,16 @@ function validateImportedPayload(payload, album) {
 
   const cleanOwned = {};
   let invalidOwned = 0;
-  for (const [code, value] of Object.entries(payload.owned)) {
+  for (const [rawCode, value] of Object.entries(payload.owned)) {
+    const code = canonicalStickerCodeForImport(rawCode);
     if (validCodes.has(code) && value === true) cleanOwned[code] = true;
     else if (!validCodes.has(code)) invalidOwned += 1;
   }
 
   const cleanDuplicates = {};
   let invalidDuplicates = 0;
-  for (const [code, value] of Object.entries(payload.duplicates)) {
+  for (const [rawCode, value] of Object.entries(payload.duplicates)) {
+    const code = canonicalStickerCodeForImport(rawCode);
     const num = Number(value);
     if (validCodes.has(code) && Number.isInteger(num) && num > 0) {
       cleanDuplicates[code] = num;

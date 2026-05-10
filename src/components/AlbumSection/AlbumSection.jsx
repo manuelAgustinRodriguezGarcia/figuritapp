@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FilterBar from "@/components/FilterBar/FilterBar";
 import StickerGrid from "@/components/StickerGrid/StickerGrid";
 import TeamSection from "@/components/TeamSection/TeamSection";
@@ -47,6 +47,8 @@ export default function AlbumSection({
   exportSnapshot,
 }) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const sectionRef = useRef(null);
+  const skipQueryScrollRef = useRef(true);
 
   const { stickers = [], teams = [] } = album || {};
 
@@ -62,7 +64,6 @@ export default function AlbumSection({
     filters.teamCode !== "all";
 
   const grouped = useMemo(() => {
-    const panini = filtered.filter((s) => s.category === "panini");
     const fwc = filtered.filter((s) => s.category === "fwc");
     const team = filtered.filter((s) => s.category === "team");
 
@@ -70,8 +71,23 @@ export default function AlbumSection({
       .map((t) => ({ team: t, stickers: team.filter((s) => s.teamCode === t.code) }))
       .filter((group) => group.stickers.length > 0);
 
-    return { panini, fwc, teamGroups };
+    return { fwc, teamGroups };
   }, [filtered, teams]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (skipQueryScrollRef.current) {
+      skipQueryScrollRef.current = false;
+      return;
+    }
+    const narrow = window.matchMedia("(max-width: 1023px)").matches;
+    if (!narrow) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+  }, [filters.query]);
 
   if (!album) {
     return (
@@ -90,7 +106,7 @@ export default function AlbumSection({
   }
 
   return (
-    <section className={styles.section} aria-label="Mi álbum">
+    <section ref={sectionRef} className={styles.section} aria-label="Mi álbum">
       <header className={styles.header}>
         <p className={styles.eyebrow}>Mi álbum</p>
         <h2 className={styles.title}>El álbum completo</h2>
@@ -120,15 +136,6 @@ export default function AlbumSection({
         />
       ) : (
         <div className={styles.groups}>
-          <StickerSection
-            eyebrow="Sección"
-            title="Panini"
-            stickers={grouped.panini}
-            owned={progress.owned}
-            duplicates={progress.duplicates}
-            onToggle={onToggle}
-            density="compact"
-          />
           <StickerSection
             eyebrow="Sección"
             title="FWC"

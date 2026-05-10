@@ -13,10 +13,9 @@ const OWNERSHIP_OPTIONS = [
 ];
 
 const SECTION_OPTIONS = [
-  { id: "all",    label: "Todas las secciones" },
-  { id: "panini", label: "Panini" },
-  { id: "fwc",    label: "FWC" },
-  { id: "team",   label: "Selecciones" },
+  { id: "all", label: "Todas las secciones" },
+  { id: "fwc", label: "FWC" },
+  { id: "team", label: "Selecciones" },
 ];
 
 function CustomDropdown({ id, label, value, options, onChange, disabled = false }) {
