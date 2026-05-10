@@ -78,9 +78,9 @@ export default function RepeatedSection({
   }
 
   return (
-    <section className={styles.section} aria-label="Repetidas">
+    <section className={styles.section} aria-label="Repes: tus repetidas e intercambio">
       <header className={styles.header}>
-        <p className={styles.eyebrow}>Repetidas</p>
+        <p className={styles.eyebrow}>Repes</p>
         <h2 className={styles.title}>Cargá tus figus repetidas</h2>
         <p className={styles.subtitle}>
           Ingresá el código de la figurita y la sumamos a tus repetidas.
@@ -132,24 +132,6 @@ export default function RepeatedSection({
           </div>
         </div>
       </form>
-
-      <div className={styles.tradeZone} aria-label="Compartir y comparar repetidas">
-        <div className={styles.tradeHeader}>
-          <p className={styles.tradeEyebrow}>Intercambio</p>
-          <h3 className={styles.tradeTitle}>Compartí o compará con otra persona</h3>
-          <p className={styles.tradeSubtitle}>
-            Todo ocurre en tu dispositivo: no guardamos datos en un servidor ni pedimos cuenta.
-          </p>
-        </div>
-        <div className={styles.tradeGrid}>
-          <div className={styles.tradeCard}>
-            <ShareRepeatedPanel duplicates={progress?.duplicates} />
-          </div>
-          <div className={styles.tradeCard}>
-            <CompareRepeatedPanel album={album} progress={progress} />
-          </div>
-        </div>
-      </div>
 
       {repeatedItems.length === 0 ? (
         <EmptyState
@@ -203,6 +185,32 @@ export default function RepeatedSection({
           })}
         </ul>
       )}
+
+      <div
+        id="repes-compartir-recibir"
+        className={`${styles.tradeZone} ${repeatedItems.length > 0 ? styles.tradeZoneTied : ""}`}
+        aria-label="Compartir y recibir listas de repes"
+      >
+        <div className={styles.tradeHeader}>
+          <p className={styles.tradeEyebrow}>Intercambio</p>
+          <h3 className={styles.tradeTitle}>Compartir y recibir repes</h3>
+          <p className={styles.tradeSubtitle}>
+            <span className={styles.tradeLead}>Exportar</span> arma el texto FIGURITAPP con las mismas
+            repes que cargaste arriba (ideal para WhatsApp).{" "}
+            <span className={styles.tradeLead}>Recibir</span> analiza la lista de otra persona y te
+            muestra cuáles te sirven según lo que te falta en el álbum. Nada se guarda en un servidor:
+            todo pasa en tu dispositivo.
+          </p>
+        </div>
+        <div className={styles.tradeGrid}>
+          <div className={styles.tradeCard}>
+            <ShareRepeatedPanel duplicates={progress?.duplicates} album={album} />
+          </div>
+          <div className={styles.tradeCard}>
+            <CompareRepeatedPanel album={album} progress={progress} />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

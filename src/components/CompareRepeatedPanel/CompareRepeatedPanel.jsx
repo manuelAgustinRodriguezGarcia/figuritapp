@@ -5,10 +5,9 @@ import { ScanSearch } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
 import {
-  parseRepeatedSharePayload,
-  validateRepeatedSharePayload,
-  compareRepeatedPayloadWithProgress,
-  formatUsefulListForCopy,
+  parseRepeatedShareText,
+  compareRepeatedListWithProgress,
+  formatUsefulHumanShareText,
   formatStickerCodeSpaced,
 } from "@/utils/repeatedSharing";
 import styles from "./CompareRepeatedPanel.module.scss";
@@ -34,10 +33,11 @@ function stickerKindLabel(sticker) {
 }
 
 function CompareResultRow({ row }) {
-  const { sticker, count } = row;
+  const { sticker, count, flagEmoji } = row;
   const isTeam = sticker.category === "team";
   const kind = stickerKindLabel(sticker);
   const playerLine = sticker.playerName?.trim() || null;
+  const sectionLine = `${describeStickerSection(sticker)}${flagEmoji ? ` ${flagEmoji}` : ""}`;
 
   return (
     <li className={styles.resultItem}>
@@ -54,7 +54,7 @@ function CompareResultRow({ row }) {
         <div className={styles.resultBody}>
           <span className={styles.resultCode}>{formatStickerCodeSpaced(sticker.code)}</span>
           {playerLine ? <span className={styles.resultName}>{playerLine}</span> : null}
-          <span className={styles.resultSection}>{describeStickerSection(sticker)}</span>
+          <span className={styles.resultSection}>{sectionLine}</span>
           <div className={styles.resultMeta}>
             {kind ? (
               <span className={styles.specialBadge}>{kind}</span>
@@ -78,6 +78,7 @@ export default function CompareRepeatedPanel({ album, progress }) {
   const [open, setOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [parseError, setParseError] = useState(null);
+  const [partialNotice, setPartialNotice] = useState(null);
   const [result, setResult] = useState(null);
   const [copyFeedback, setCopyFeedback] = useState(null);
 
@@ -86,6 +87,7 @@ export default function CompareRepeatedPanel({ album, progress }) {
   const handleClose = useCallback(() => {
     setOpen(false);
     setParseError(null);
+    setPartialNotice(null);
     setResult(null);
     setCopyFeedback(null);
     requestAnimationFrame(() => openButtonRef.current?.focus());
@@ -114,6 +116,7 @@ export default function CompareRepeatedPanel({ album, progress }) {
   const handleOpen = useCallback(() => {
     setOpen(true);
     setParseError(null);
+    setPartialNotice(null);
     setResult(null);
     setCopyFeedback(null);
   }, []);
@@ -122,43 +125,37 @@ export default function CompareRepeatedPanel({ album, progress }) {
     setPasteText("");
     setResult(null);
     setParseError(null);
+    setPartialNotice(null);
     setCopyFeedback(null);
     textareaRef.current?.focus();
   }, []);
 
   const handleCompare = useCallback(() => {
     setParseError(null);
+    setPartialNotice(null);
     setResult(null);
     setCopyFeedback(null);
 
-    const parsed = parseRepeatedSharePayload(pasteText);
-    if (!parsed.ok) {
-      setParseError(parsed.error);
+    const pr = parseRepeatedShareText(pasteText, stickers);
+    if (pr.parsed.length === 0) {
+      setParseError("No encontramos figuritas repetidas válidas en el texto.");
       return;
     }
 
-    const envelope = validateRepeatedSharePayload(parsed.payload, stickers);
-    if (!envelope.ok) {
-      setParseError(envelope.errors.join(" "));
-      return;
+    const cmp = compareRepeatedListWithProgress(pr.parsed, stickers, progress?.owned || {});
+    setResult({
+      ...cmp,
+      lineUnknown: pr.unknown,
+      lineWarnings: pr.warnings,
+    });
+    if (pr.unknown.length > 0) {
+      setPartialNotice("Algunas líneas no se pudieron interpretar.");
     }
-
-    if (!Array.isArray(parsed.payload.stickers) || parsed.payload.stickers.length === 0) {
-      setParseError("La lista de repetidas está vacía.");
-      return;
-    }
-
-    const cmp = compareRepeatedPayloadWithProgress(
-      parsed.payload,
-      stickers,
-      progress?.owned || {},
-    );
-    setResult(cmp);
   }, [pasteText, stickers, progress?.owned]);
 
   const handleCopyUseful = useCallback(async () => {
     if (!result || result.useful.length === 0) return;
-    const text = formatUsefulListForCopy(result.useful);
+    const text = formatUsefulHumanShareText(result.useful);
     if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
@@ -172,6 +169,15 @@ export default function CompareRepeatedPanel({ album, progress }) {
     }
   }, [result]);
 
+  const allUnknown = useMemo(() => {
+    if (!result) return [];
+    const line = Array.isArray(result.lineUnknown) ? result.lineUnknown : [];
+    const cmpU = Array.isArray(result.unknown) ? result.unknown : [];
+    return [...line, ...cmpU];
+  }, [result]);
+
+  const unknownCount = allUnknown.length;
+
   const summarySentence =
     result && result.receivedTotal > 0
       ? `De ${result.receivedTotal} figuritas repetidas recibidas, ${result.useful.length} te sirven para completar tu álbum.`
@@ -184,10 +190,11 @@ export default function CompareRepeatedPanel({ album, progress }) {
           <span className={styles.cardIcon} aria-hidden="true">
             <ScanSearch size={22} strokeWidth={2} />
           </span>
-          <h4 className={styles.cardTitle}>Comparar Repetidas</h4>
+          <h4 className={styles.cardTitle}>Recibir repes</h4>
         </div>
         <p className={styles.hint}>
-          Pegá el texto que te compartieron para ver cuáles te sirven para tu álbum.
+          Pegá la lista FIGURITAPP (u otro texto compatible) y comparala con lo que te falta en el
+          álbum.
         </p>
         <button
           type="button"
@@ -195,7 +202,7 @@ export default function CompareRepeatedPanel({ album, progress }) {
           className={styles.openBtn}
           onClick={handleOpen}
         >
-          Comparar Repetidas
+          Recibir repes
         </button>
       </div>
 
@@ -215,21 +222,25 @@ export default function CompareRepeatedPanel({ album, progress }) {
           >
             <div className={styles.dialogHeader}>
               <h2 id={titleId} className={styles.dialogTitle}>
-                Comparar repetidas de otra persona
+                Recibir repes de otra persona
               </h2>
               <button
                 type="button"
                 className={styles.closeBtn}
                 onClick={handleClose}
-                aria-label="Cerrar comparación"
+                aria-label="Cerrar ventana de repes"
               >
                 Cerrar
               </button>
             </div>
 
             <div className={styles.dialogBody}>
+              <p className={styles.intro}>
+                Pegá la lista de repes que te pasaron. Comparamos contra tu álbum (solo lectura: no
+                marcamos nada como conseguido).
+              </p>
               <label htmlFor={pasteId} className={styles.pasteLabel}>
-                Pegá acá las repetidas de otra persona
+                Pegá acá la lista de repes
               </label>
               <textarea
                 ref={textareaRef}
@@ -240,8 +251,9 @@ export default function CompareRepeatedPanel({ album, progress }) {
                   setPasteText(event.target.value);
                   if (parseError) setParseError(null);
                   if (copyFeedback) setCopyFeedback(null);
+                  if (partialNotice) setPartialNotice(null);
                 }}
-                rows={6}
+                rows={8}
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -259,6 +271,20 @@ export default function CompareRepeatedPanel({ album, progress }) {
                 <p className={styles.error} role="alert" aria-live="assertive">
                   {parseError}
                 </p>
+              ) : null}
+
+              {partialNotice ? (
+                <p className={styles.partial} role="status" aria-live="polite">
+                  {partialNotice}
+                </p>
+              ) : null}
+
+              {result?.lineWarnings?.length ? (
+                <ul className={styles.warnings} aria-label="Advertencias de lectura">
+                  {result.lineWarnings.map((w, i) => (
+                    <li key={`${w.message}-${i}`}>{w.message}</li>
+                  ))}
+                </ul>
               ) : null}
 
               {copyFeedback ? (
@@ -286,10 +312,12 @@ export default function CompareRepeatedPanel({ album, progress }) {
                       <dt>Figuritas que ya tenés</dt>
                       <dd>{result.alreadyOwned.length}</dd>
                     </div>
-                    <div className={styles.countRow}>
-                      <dt>Códigos no reconocidos</dt>
-                      <dd>{result.unknown.length}</dd>
-                    </div>
+                    {unknownCount > 0 ? (
+                      <div className={styles.countRow}>
+                        <dt>Códigos no reconocidos</dt>
+                        <dd>{unknownCount}</dd>
+                      </div>
+                    ) : null}
                   </dl>
 
                   <button
@@ -335,28 +363,26 @@ export default function CompareRepeatedPanel({ album, progress }) {
                     )}
                   </section>
 
-                  <section className={styles.group} aria-labelledby={`${titleId}-g-unknown`}>
-                    <h3 id={`${titleId}-g-unknown`} className={styles.groupTitle}>
-                      No reconocidas
-                    </h3>
-                    {result.unknown.length === 0 ? (
-                      <p className={styles.emptyGroupMuted}>
-                        Todos los códigos eran reconocibles para este álbum.
-                      </p>
-                    ) : (
+                  {unknownCount > 0 ? (
+                    <section className={styles.group} aria-labelledby={`${titleId}-g-unknown`}>
+                      <h3 id={`${titleId}-g-unknown`} className={styles.groupTitle}>
+                        No reconocidas
+                      </h3>
                       <ul className={styles.resultListPlain}>
-                        {result.unknown.map((item, index) => (
+                        {allUnknown.map((item, index) => (
                           <li
-                            key={`${String(item.code)}-${String(index)}`}
+                            key={`${String(item.value ?? item.code)}-${String(index)}`}
                             className={styles.unknownItem}
                           >
-                            <span className={styles.unknownCode}>{item.code}</span>
+                            <span className={styles.unknownCode}>
+                              {item.value ?? item.code ?? "—"}
+                            </span>
                             <span className={styles.unknownReason}>{item.reason}</span>
                           </li>
                         ))}
                       </ul>
-                    )}
-                  </section>
+                    </section>
+                  ) : null}
                 </>
               ) : null}
             </div>

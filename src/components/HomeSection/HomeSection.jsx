@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen, GalleryHorizontalEnd } from "lucide-react";
 import ProgressSummary from "@/components/ProgressSummary/ProgressSummary";
 import styles from "./HomeSection.module.scss";
 
@@ -37,7 +38,10 @@ export default function HomeSection({ stats, hydrated, onNavigate }) {
       <ProgressSummary stats={stats} hydrated={hydrated} />
 
       <div className={styles.quickGrid}>
-        <article className={styles.quickCard}>
+        <article className={`${styles.quickCard} ${styles.quickCardAlbum}`}>
+          <div className={styles.quickIconWrap} aria-hidden="true">
+            <BookOpen className={styles.quickIcon} size={24} strokeWidth={2} />
+          </div>
           <p className={styles.quickEyebrow}>Sección Mi álbum</p>
           <h2 className={styles.quickTitle}>Marcá lo que tenés</h2>
           <p className={styles.quickBody}>
@@ -48,7 +52,10 @@ export default function HomeSection({ stats, hydrated, onNavigate }) {
             Abrir Mi álbum →
           </button>
         </article>
-        <article className={styles.quickCard}>
+        <article className={`${styles.quickCard} ${styles.quickCardRepes}`}>
+          <div className={styles.quickIconWrap} aria-hidden="true">
+            <GalleryHorizontalEnd className={styles.quickIcon} size={24} strokeWidth={2} />
+          </div>
           <p className={styles.quickEyebrow}>Sección Repetidas</p>
           <h2 className={styles.quickTitle}>Sumá tus repetidas</h2>
           <p className={styles.quickBody}>

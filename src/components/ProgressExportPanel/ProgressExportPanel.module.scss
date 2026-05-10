@@ -1,0 +1,139 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  padding: $space-md 0;
+  border-top: 1px solid var(--color-hairline);
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.helper {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-charcoal);
+  max-width: 62ch;
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+
+  @include breakpoint-up(md) {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.primaryBtn,
+.secondaryBtn {
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    width: auto;
+  }
+}
+
+.primaryBtn {
+  @include button-reset;
+  @include pill-primary;
+  height: 44px;
+  padding: 0 $space-xl;
+  font-size: 13px;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+  }
+}
+
+.secondaryBtn {
+  @include button-reset;
+  @include pill-secondary;
+  height: 44px;
+  padding: 0 $space-xl;
+  font-size: 13px;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+  }
+}
+
+.status {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+}
+
+.statusSuccess {
+  color: var(--color-success);
+  background-color: rgba(0, 125, 72, 0.08);
+}
+
+.statusError {
+  color: var(--color-sale-deep);
+  background-color: rgba(211, 0, 5, 0.08);
+}
+
+.manualWrap {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.manualLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 160px;
+  padding: $space-md;
+  border-radius: $radius-sm;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  resize: vertical;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+  }
+}
+
+.textPreview {
+  margin-top: $space-xs;
+}

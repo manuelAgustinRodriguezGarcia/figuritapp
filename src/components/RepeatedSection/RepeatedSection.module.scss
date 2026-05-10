@@ -301,6 +301,25 @@
   border: 1px solid var(--color-hairline);
 }
 
+.tradeZoneTied {
+  position: relative;
+  margin-top: $space-md;
+  padding-top: $space-xl;
+  border-top: 2px solid var(--color-ink);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: $space-xl;
+    right: $space-xl;
+    height: 3px;
+    border-radius: 0 0 $radius-sm $radius-sm;
+    background: linear-gradient(90deg, var(--color-sale) 0%, var(--color-ink) 50%, var(--color-mute) 100%);
+    opacity: 0.35;
+  }
+}
+
 .tradeHeader {
   display: flex;
   flex-direction: column;
@@ -332,6 +351,11 @@
   line-height: 1.45;
   color: var(--color-charcoal);
   max-width: 60ch;
+}
+
+.tradeLead {
+  font-weight: 700;
+  color: var(--color-ink);
 }
 
 .tradeGrid {

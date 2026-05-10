@@ -90,7 +90,6 @@ export default function AppShell() {
               onToggle={progressActions.toggleOwned}
               onReplaceProgress={progressActions.replaceProgress}
               onResetProgress={progressActions.resetProgress}
-              exportSnapshot={progressActions.exportSnapshot}
             />
           ) : null}
 

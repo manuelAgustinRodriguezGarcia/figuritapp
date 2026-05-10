@@ -25,15 +25,14 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: $space-xs;
+  gap: 2px;
   color: var(--color-ink);
   border-radius: $radius-sm;
   padding: $space-xs $space-sm;
-  /* Una sola escala tipográfica: el logo usa 1em de alto y alinea con el texto */
-  font-size: 26px;
+  font-size: 22px;
 
   @include breakpoint-up(sm) {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   &:hover { background-color: var(--color-soft-cloud); }
@@ -42,14 +41,19 @@
 
 .brandMark {
   display: block;
-  height: 1em;
+  height: 40px;
   width: auto;
-  max-height: 1em;
-  max-width: 1.2em;
+  max-height: 40px;
+  max-width: 180px;
   object-fit: contain;
   object-position: center;
   flex-shrink: 0;
   align-self: center;
+
+  @include breakpoint-up(sm) {
+    height: 44px;
+    max-height: 44px;
+  }
 }
 
 .brandText {
@@ -113,7 +117,7 @@
   z-index: 1;
   display: inline-flex;
   align-items: stretch;
-  height: 36px;
+  height: 42px;
   margin: 0;
   padding: 0;
   gap: 0;

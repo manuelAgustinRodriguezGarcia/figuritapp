@@ -44,7 +44,6 @@ export default function AlbumSection({
   onToggle,
   onReplaceProgress,
   onResetProgress,
-  exportSnapshot,
 }) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const sectionRef = useRef(null);
@@ -161,10 +160,10 @@ export default function AlbumSection({
 
       <ImportExportPanel
         album={album}
+        progress={progress}
         hydrated={hydrated}
         onResetProgress={onResetProgress}
         onReplaceProgress={onReplaceProgress}
-        exportSnapshot={exportSnapshot}
       />
     </section>
   );

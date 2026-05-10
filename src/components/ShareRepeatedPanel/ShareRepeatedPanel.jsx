@@ -1,42 +1,69 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Users } from "lucide-react";
-import {
-  createRepeatedSharePayload,
-  stringifyRepeatedSharePayload,
-} from "@/utils/repeatedSharing";
+import { formatRepeatedShareText } from "@/utils/repeatedSharing";
 import styles from "./ShareRepeatedPanel.module.scss";
 
-export default function ShareRepeatedPanel({ duplicates }) {
+const TOAST_VISIBLE_MS = 2600;
+const TOAST_EXIT_MS = 380;
+
+export default function ShareRepeatedPanel({ duplicates, album }) {
   const statusId = useId();
-  const [status, setStatus] = useState(null);
+  const [toast, setToast] = useState(null);
   const [manualFallback, setManualFallback] = useState(false);
   const [manualText, setManualText] = useState("");
 
+  const hideTimerRef = useRef(null);
+  const exitTimerRef = useRef(null);
+  const toastGenRef = useRef(0);
+
+  const stickers = useMemo(() => album?.stickers || [], [album]);
+
+  const clearToastTimers = useCallback(() => {
+    if (hideTimerRef.current != null) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    if (exitTimerRef.current != null) {
+      clearTimeout(exitTimerRef.current);
+      exitTimerRef.current = null;
+    }
+  }, []);
+
+  const showToast = useCallback(
+    (message, tone) => {
+      clearToastTimers();
+      toastGenRef.current += 1;
+      setToast({ message, tone, exiting: false, gen: toastGenRef.current });
+      hideTimerRef.current = window.setTimeout(() => {
+        hideTimerRef.current = null;
+        setToast((prev) => (prev ? { ...prev, exiting: true } : null));
+        exitTimerRef.current = window.setTimeout(() => {
+          exitTimerRef.current = null;
+          setToast(null);
+        }, TOAST_EXIT_MS);
+      }, TOAST_VISIBLE_MS);
+    },
+    [clearToastTimers],
+  );
+
+  useEffect(() => () => clearToastTimers(), [clearToastTimers]);
+
   const handleShare = useCallback(async () => {
-    setStatus(null);
     setManualFallback(false);
     setManualText("");
 
-    const payload = createRepeatedSharePayload(duplicates);
-    if (payload.stickers.length === 0) {
-      setStatus({
-        tone: "neutral",
-        message: "Todavía no tenés figuritas repetidas para compartir.",
-      });
+    const text = formatRepeatedShareText(duplicates, stickers);
+    if (!text) {
+      showToast("Todavía no tenés repes cargadas para compartir. Sumá figuritas arriba primero.", "neutral");
       return;
     }
-
-    const text = stringifyRepeatedSharePayload(payload);
 
     if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
-        setStatus({
-          tone: "success",
-          message: "Tus repetidas se copiaron al portapapeles.",
-        });
+        showToast("Tus repes se copiaron al portapapeles.", "success");
         return;
       } catch {
         // fall through to manual copy
@@ -45,52 +72,51 @@ export default function ShareRepeatedPanel({ duplicates }) {
 
     setManualText(text);
     setManualFallback(true);
-    setStatus({
-      tone: "notice",
-      message:
-        "No pudimos copiar automáticamente. Seleccioná y copiá el texto de abajo, o usá Ctrl+C / Cmd+C.",
-    });
-  }, [duplicates]);
+    showToast("No pudimos copiar automáticamente. Copiá el texto manualmente.", "notice");
+  }, [duplicates, stickers, showToast]);
 
   return (
-    <div className={styles.root}>
-      <div className={styles.cardHead}>
-        <span className={styles.cardIcon} aria-hidden="true">
-          <Users size={22} strokeWidth={2} />
-        </span>
-        <h4 className={styles.cardTitle}>Compartir Repetidas</h4>
-      </div>
-      <p className={styles.hint}>
-        Copiá este texto y envialo por WhatsApp u otra app a alguien que también use Figuritapp.
-      </p>
-      <button type="button" className={styles.actionBtn} onClick={handleShare}>
-        Compartir Repetidas
-      </button>
-      {status ? (
-        <p
-          id={statusId}
-          className={`${styles.status} ${styles[`status--${status.tone}`]}`}
-          role="status"
-          aria-live="polite"
-        >
-          {status.message}
+    <>
+      <div className={styles.root}>
+        <div className={styles.cardHead}>
+          <span className={styles.cardIcon} aria-hidden="true">
+            <Users size={22} strokeWidth={2} />
+          </span>
+          <h4 className={styles.cardTitle}>Compartir repes</h4>
+        </div>
+        <p className={styles.hint}>
+          Usa las mismas repes que cargaste arriba: generamos el texto FIGURITAPP listo para WhatsApp.
         </p>
-      ) : null}
-      {manualFallback ? (
-        <div className={styles.fallback}>
-          <label htmlFor={`${statusId}-manual`} className={styles.fallbackLabel}>
-            Texto para copiar manualmente
-          </label>
-          <textarea
-            id={`${statusId}-manual`}
-            className={styles.fallbackTextarea}
-            readOnly
-            rows={6}
-            value={manualText}
-            onFocus={(e) => e.target.select()}
-          />
+        <button type="button" className={styles.actionBtn} onClick={handleShare}>
+          Compartir repes
+        </button>
+        {manualFallback ? (
+          <div className={styles.fallback}>
+            <label htmlFor={`${statusId}-manual`} className={styles.fallbackLabel}>
+              Texto para copiar manualmente
+            </label>
+            <textarea
+              id={`${statusId}-manual`}
+              className={styles.fallbackTextarea}
+              readOnly
+              rows={8}
+              value={manualText}
+              onFocus={(e) => e.target.select()}
+            />
+          </div>
+        ) : null}
+      </div>
+
+      {toast ? (
+        <div className={styles.toastAnchor} aria-live="polite" role="status">
+          <div
+            key={toast.gen}
+            className={`${styles.toast} ${styles[`toast--${toast.tone}`]} ${toast.exiting ? styles.toastExiting : ""}`}
+          >
+            {toast.message}
+          </div>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }
