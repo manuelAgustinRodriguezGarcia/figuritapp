@@ -4,6 +4,8 @@ import { useId, useMemo, useState } from "react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
+import ShareRepeatedPanel from "@/components/ShareRepeatedPanel/ShareRepeatedPanel";
+import CompareRepeatedPanel from "@/components/CompareRepeatedPanel/CompareRepeatedPanel";
 import { normalizeStickerCode, getStickerByCode } from "@/utils/stickerCode";
 import styles from "./RepeatedSection.module.scss";
 
@@ -79,7 +81,7 @@ export default function RepeatedSection({
     <section className={styles.section} aria-label="Repetidas">
       <header className={styles.header}>
         <p className={styles.eyebrow}>Repetidas</p>
-        <h2 className={styles.title}>Cargá tus copias extra</h2>
+        <h2 className={styles.title}>Cargá tus figus repetidas</h2>
         <p className={styles.subtitle}>
           Ingresá el código de la figurita y la sumamos a tus repetidas.
           Si era faltante, queda marcada como conseguida automáticamente.
@@ -130,6 +132,24 @@ export default function RepeatedSection({
           </div>
         </div>
       </form>
+
+      <div className={styles.tradeZone} aria-label="Compartir y comparar repetidas">
+        <div className={styles.tradeHeader}>
+          <p className={styles.tradeEyebrow}>Intercambio</p>
+          <h3 className={styles.tradeTitle}>Compartí o compará con otra persona</h3>
+          <p className={styles.tradeSubtitle}>
+            Todo ocurre en tu dispositivo: no guardamos datos en un servidor ni pedimos cuenta.
+          </p>
+        </div>
+        <div className={styles.tradeGrid}>
+          <div className={styles.tradeCard}>
+            <ShareRepeatedPanel duplicates={progress?.duplicates} />
+          </div>
+          <div className={styles.tradeCard}>
+            <CompareRepeatedPanel album={album} progress={progress} />
+          </div>
+        </div>
+      </div>
 
       {repeatedItems.length === 0 ? (
         <EmptyState

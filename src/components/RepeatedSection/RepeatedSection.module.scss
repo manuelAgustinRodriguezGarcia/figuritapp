@@ -290,3 +290,68 @@
 
   &:hover { background-color: #000; }
 }
+
+.tradeZone {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+  padding: $space-xl;
+  border-radius: $radius-md;
+  background: linear-gradient(180deg, var(--color-soft-cloud) 0%, var(--color-canvas) 100%);
+  border: 1px solid var(--color-hairline);
+}
+
+.tradeHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.tradeEyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.tradeTitle {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 500;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.tradeSubtitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  max-width: 60ch;
+}
+
+.tradeGrid {
+  display: grid;
+  gap: $space-lg;
+  grid-template-columns: 1fr;
+
+  @include breakpoint-up(md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $space-xl;
+  }
+}
+
+.tradeCard {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  padding: $space-lg;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  min-height: 100%;
+}

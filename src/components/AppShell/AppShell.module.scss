@@ -32,13 +32,23 @@
 }
 
 .footer {
-  background-color: var(--color-canvas);
-  border-top: 1px solid var(--color-hairline);
-  padding: $space-xl 0 calc(72px + env(safe-area-inset-bottom, 0px));
+  background-color: #0f1014;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: $space-md var(--layout-content-gutter) calc(72px + env(safe-area-inset-bottom, 0px));
 
   @include breakpoint-up(md) {
-    padding: $space-xl 0;
+    padding: $space-md var(--layout-content-gutter) calc(#{$space-md} + env(safe-area-inset-bottom, 0px));
   }
+}
+
+.footerContainer {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding: $space-sm 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
 }
 
 .footerCopy {
@@ -47,7 +57,7 @@
   flex-direction: column;
   gap: $space-xs;
   font-size: 12px;
-  color: var(--color-mute);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .footerBrand {
@@ -55,7 +65,7 @@
   font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-ink);
+  color: rgba(255, 255, 255, 0.94);
   font-weight: 500;
 }
 
@@ -63,4 +73,39 @@
   font-size: 11px;
   letter-spacing: 0.02em;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.footerCredit {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.footerCreditLead {
+  color: inherit;
+  font-weight: 600;
+}
+
+.footerCreditLink {
+  text-decoration: none;
+  color: #c4b5fd;
+  font-weight: 700;
+  transition: color $transition-base, text-shadow $transition-base;
+
+  &:hover {
+    color: #ddd6fe;
+    text-shadow: 0 0 18px rgba(167, 139, 250, 0.4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(196, 181, 253, 0.95);
+    outline-offset: 3px;
+    border-radius: $radius-sm;
+  }
 }
