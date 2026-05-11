@@ -9,13 +9,9 @@
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  /* Misma altura que carta conseguida con fila − / Copy / +: reserva aunque sea faltante */
+  /* Altura unificada: franja inferior (botones o espaciador) en todas las cartas */
   min-height: calc(132px + #{$space-xs} + 44px + #{$space-md});
   border-radius: $radius-md;
-
-  @media (max-width: ($bp-md - 1px)) {
-    min-height: 132px;
-  }
   background-color: var(--color-canvas);
   border: 1px solid var(--color-hairline);
   transition: transform $transition-snap, border-color $transition-base, background-color $transition-base, box-shadow $transition-base;
@@ -425,10 +421,15 @@
   gap: $space-sm;
   flex-shrink: 0;
   padding: $space-xs $space-md $space-md;
+}
 
-  @media (max-width: ($bp-md - 1px)) {
-    display: none;
-  }
+/* Misma altura que .repeatRow cuando no hay botones (faltante / móvil con gestos) */
+.repeatRowSpacer {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: $space-xs $space-md $space-md;
+  min-height: calc(44px + #{$space-xs} + #{$space-md});
+  pointer-events: none;
 }
 
 .repeatBtn {

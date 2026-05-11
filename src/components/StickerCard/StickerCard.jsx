@@ -99,6 +99,7 @@ function StickerCardComponent({
   const nameHint = teamPlayerName ? ` (${teamPlayerName})` : "";
   const showRepeatControls = isOwned && onAddDuplicate && onDecreaseDuplicate;
   const mobileOwnedGestures = isMobileLayout && isOwned && showRepeatControls;
+  const showRepeatRowUi = showRepeatControls && !isMobileLayout;
 
   const accessibleLabel = mobileOwnedGestures
     ? `Figurita conseguida ${sticker.displayCode}${nameHint}. Tocá para sumar repetida; dos toques seguidos restan una si tenés repetidas. Mantené pulsado para borrar.`
@@ -293,7 +294,7 @@ function StickerCardComponent({
         ) : null}
       </button>
 
-      {showRepeatControls ? (
+      {showRepeatRowUi ? (
         <div className={styles.repeatRow}>
           <button
             type="button"
@@ -323,7 +324,9 @@ function StickerCardComponent({
             +
           </button>
         </div>
-      ) : null}
+      ) : (
+        <div className={styles.repeatRowSpacer} aria-hidden />
+      )}
 
       {clearOverlayOpen && isOwned ? (
         <div className={styles.clearOverlay} role="presentation" onClick={handleClearBackdrop}>
