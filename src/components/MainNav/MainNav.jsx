@@ -101,8 +101,43 @@ function AlbumGesturesSheet({ onClose }) {
   const panelRef = useRef(null);
 
   useEffect(() => {
-    const el = panelRef.current?.querySelector("button");
-    el?.focus();
+    const html = document.documentElement;
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyLeft: body.style.left,
+      bodyRight: body.style.right,
+      bodyWidth: body.style.width,
+    };
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
+    const focusEl = () => {
+      const el = panelRef.current?.querySelector("button");
+      el?.focus();
+    };
+    queueMicrotask(focusEl);
+
+    return () => {
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.top = prev.bodyTop;
+      body.style.left = prev.bodyLeft;
+      body.style.right = prev.bodyRight;
+      body.style.width = prev.bodyWidth;
+      window.scrollTo(0, scrollY);
+    };
   }, []);
 
   return (
@@ -116,20 +151,20 @@ function AlbumGesturesSheet({ onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="album-gestures-title" className={styles.gesturesTitle}>
-          Gestos en Mi álbum (móvil)
+          Gestos en Mi álbum
         </h2>
         <ul className={styles.gesturesList}>
           <li>
-            <strong>Toque</strong> en una figurita <strong>faltante</strong>: la marcás como conseguida.
+            <strong>Tocá</strong> en una figurita <strong>faltante</strong> para marcarla como conseguida.
           </li>
           <li>
-            <strong>Toque</strong> en una <strong>conseguida</strong>: suma <strong>1 repetida</strong>.
+            <strong>Tocá</strong> en una figurita <strong>conseguida</strong>y sumá <strong>1 repetida</strong>.
           </li>
           <li>
-            <strong>Dos toques seguidos</strong> en una conseguida: resta <strong>1 repetida</strong> (solo si ya tenés repetidas cargadas).
+            <strong>Tocá dos veces</strong> en una figurita repetida para restar <strong>1 repetida</strong> (Tenés que tener una o más repetidas cargadas).
           </li>
           <li>
-            <strong>Mantener pulsado</strong> en una conseguida: aparece el diálogo para <strong>borrar</strong> la figurita y sus repetidas (confirmás con el tilde).
+            <strong>Mantener pulsado</strong> en una figurita conseguida: aparece al opción para <strong>borrar</strong> la figurita y sus repetidas.
           </li>
         </ul>
         <button type="button" className={styles.gesturesClose} onClick={onClose}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { Check, Copy, X } from "lucide-react";
+import { Check, GalleryHorizontalEnd, X } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
 import styles from "./StickerCard.module.scss";
@@ -100,9 +100,17 @@ function StickerCardComponent({
   const showRepeatControls = isOwned && onAddDuplicate && onDecreaseDuplicate;
   const mobileOwnedGestures = isMobileLayout && isOwned && showRepeatControls;
   const showRepeatRowUi = showRepeatControls && !isMobileLayout;
+  const useCardHitFooterPad = !showRepeatRowUi;
+
+  const repesCountPhrase =
+    duplicateCount === 0
+      ? "Sin repetidas."
+      : duplicateCount === 1
+        ? "1 repetida."
+        : `${duplicateCount} repetidas.`;
 
   const accessibleLabel = mobileOwnedGestures
-    ? `Figurita conseguida ${sticker.displayCode}${nameHint}. Tocá para sumar repetida; dos toques seguidos restan una si tenés repetidas. Mantené pulsado para borrar.`
+    ? `Figurita conseguida ${sticker.displayCode}${nameHint}. ${repesCountPhrase} Tocá para sumar repetida; dos toques seguidos restan una si tenés repetidas. Mantené pulsado para borrar.`
     : isOwned
       ? `Marcar ${sticker.displayCode}${nameHint} como faltante`
       : `Marcar ${sticker.displayCode}${nameHint} como conseguida`;
@@ -292,6 +300,17 @@ function StickerCardComponent({
             </span>
           </span>
         ) : null}
+
+        {mobileOwnedGestures ? (
+          <span
+            className={`${styles.mobileDupBadge} ${duplicateCount === 0 ? styles.mobileDupBadgeEmpty : ""}`}
+            aria-hidden
+          >
+            <GalleryHorizontalEnd size={13} strokeWidth={2} className={styles.mobileDupIcon} />
+            <span className={styles.mobileDupCount}>{duplicateCount}</span>
+          </span>
+        ) : null}
+        {useCardHitFooterPad ? <span className={styles.cardHitFooterPad} aria-hidden /> : null}
       </button>
 
       {showRepeatRowUi ? (
@@ -315,7 +334,7 @@ function StickerCardComponent({
                   : `${duplicateCount} repetidas`
             }
           >
-            <Copy size={16} strokeWidth={2.25} className={styles.copyIcon} aria-hidden />
+            <GalleryHorizontalEnd size={16} strokeWidth={2} className={styles.copyIcon} aria-hidden />
             <span className={styles.copyCount} aria-hidden>
               {duplicateCount}
             </span>
@@ -324,9 +343,7 @@ function StickerCardComponent({
             +
           </button>
         </div>
-      ) : (
-        <div className={styles.repeatRowSpacer} aria-hidden />
-      )}
+      ) : null}
 
       {clearOverlayOpen && isOwned ? (
         <div className={styles.clearOverlay} role="presentation" onClick={handleClearBackdrop}>

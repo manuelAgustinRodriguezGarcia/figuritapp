@@ -1,9 +1,10 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
+import SectionScrollFab from "@/components/SectionScrollFab/SectionScrollFab";
 import ShareRepeatedPanel from "@/components/ShareRepeatedPanel/ShareRepeatedPanel";
 import CompareRepeatedPanel from "@/components/CompareRepeatedPanel/CompareRepeatedPanel";
 import { normalizeStickerCode, getStickerByCode } from "@/utils/stickerCode";
@@ -20,6 +21,15 @@ function describeStickerSection(sticker) {
   }
 }
 
+const SUGGESTION_LIMIT = 3;
+
+function stickerMatchesQuery(sticker, q) {
+  if (!q) return false;
+  const code = (sticker.code || "").toLowerCase();
+  const display = (sticker.displayCode || "").toLowerCase();
+  return code.includes(q) || display.includes(q);
+}
+
 export default function RepeatedSection({
   album,
   progress,
@@ -28,8 +38,11 @@ export default function RepeatedSection({
   onDecreaseDuplicate,
 }) {
   const inputId = useId();
+  const listboxId = useId();
+  const inputRef = useRef(null);
   const [rawCode, setRawCode] = useState("");
   const [feedback, setFeedback] = useState(null);
+  const [suggestDismissed, setSuggestDismissed] = useState(false);
 
   const stickers = useMemo(() => album?.stickers || [], [album]);
 
@@ -50,10 +63,34 @@ export default function RepeatedSection({
 
   const totalCopies = repeatedItems.reduce((sum, item) => sum + item.count, 0);
 
+  const scrollFabLayoutKey = useMemo(
+    () => `${repeatedItems.length}-${totalCopies}-${hydrated ? 1 : 0}`,
+    [repeatedItems.length, totalCopies, hydrated],
+  );
+
+  const suggestions = useMemo(() => {
+    const q = rawCode.trim().toLowerCase();
+    if (!q || repeatedItems.length === 0) return [];
+    return repeatedItems
+      .filter(({ sticker }) => stickerMatchesQuery(sticker, q))
+      .slice(0, SUGGESTION_LIMIT);
+  }, [rawCode, repeatedItems]);
+
+  const showSuggestionList = suggestions.length > 0 && !suggestDismissed;
+
+  function focusInputSoon() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
+    });
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     if (!album) {
       setFeedback({ tone: "error", message: "Esperá a que termine de cargar el álbum." });
+      focusInputSoon();
       return;
     }
     const normalized = normalizeStickerCode(rawCode);
@@ -62,11 +99,13 @@ export default function RepeatedSection({
         tone: "error",
         message: "Código inválido. Probá con formatos como ARG1, ARG18, FWC5 o FWC00.",
       });
+      focusInputSoon();
       return;
     }
     const sticker = getStickerByCode(normalized, stickers);
     if (!sticker) {
       setFeedback({ tone: "error", message: `El código "${normalized}" no existe en el álbum.` });
+      focusInputSoon();
       return;
     }
     onAddDuplicate?.(normalized);
@@ -74,7 +113,22 @@ export default function RepeatedSection({
       tone: "success",
       message: `Sumamos una repetida de ${sticker.displayCode}.`,
     });
+    setSuggestDismissed(false);
     setRawCode("");
+    focusInputSoon();
+  }
+
+  function applySuggestion(sticker) {
+    setSuggestDismissed(true);
+    setRawCode(sticker.displayCode);
+    if (feedback) setFeedback(null);
+    focusInputSoon();
+  }
+
+  function handleComboBlur(event) {
+    const { relatedTarget, currentTarget } = event;
+    if (relatedTarget instanceof Node && currentTarget.contains(relatedTarget)) return;
+    setSuggestDismissed(true);
   }
 
   return (
@@ -92,22 +146,68 @@ export default function RepeatedSection({
         <div className={styles.fieldGroup}>
           <label htmlFor={inputId} className={styles.label}>Código de figurita</label>
           <div className={styles.inputRow}>
-            <input
-              id={inputId}
-              className={styles.input}
-              type="text"
-              inputMode="text"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="Ej: ARG1, ARG18, FWC5, FWC00"
-              value={rawCode}
-              onChange={(event) => {
-                setRawCode(event.target.value);
-                if (feedback) setFeedback(null);
-              }}
-              aria-describedby={feedback ? `${inputId}-feedback` : undefined}
-            />
-            <button type="submit" className={styles.submit}>
+            <div
+              className={styles.inputCombo}
+              onBlur={handleComboBlur}
+            >
+              <input
+                ref={inputRef}
+                id={inputId}
+                className={styles.input}
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                spellCheck={false}
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={showSuggestionList}
+                aria-controls={showSuggestionList ? listboxId : undefined}
+                placeholder="Ej: ARG1, ARG18, FWC5, FWC00"
+                value={rawCode}
+                onChange={(event) => {
+                  setSuggestDismissed(false);
+                  setRawCode(event.target.value);
+                  if (feedback) setFeedback(null);
+                }}
+                onFocus={() => setSuggestDismissed(false)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && showSuggestionList) {
+                    event.preventDefault();
+                    setSuggestDismissed(true);
+                  }
+                }}
+                aria-describedby={feedback ? `${inputId}-feedback` : undefined}
+              />
+              {showSuggestionList ? (
+                <ul id={listboxId} className={styles.suggestList} role="listbox" aria-label="Repetidas que coinciden">
+                  {suggestions.map(({ sticker, count }) => (
+                    <li key={sticker.code} className={styles.suggestItem} role="presentation">
+                      <button
+                        type="button"
+                        className={styles.suggestOption}
+                        role="option"
+                        aria-selected={false}
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          applySuggestion(sticker);
+                        }}
+                      >
+                        <span className={styles.suggestCode}>{sticker.displayCode}</span>
+                        <span className={styles.suggestMeta}>
+                          {describeStickerSection(sticker)}
+                          <span className={styles.suggestCount}>×{count}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+            <button
+              type="submit"
+              className={styles.submit}
+              onMouseDown={(event) => event.preventDefault()}
+            >
               Agregar repetida
             </button>
           </div>
@@ -211,6 +311,14 @@ export default function RepeatedSection({
           </div>
         </div>
       </div>
+
+      <SectionScrollFab
+        enabled={Boolean(album)}
+        layoutKey={scrollFabLayoutKey}
+        variant="aboveBottomNav"
+        downLabel="Ir al final de Repes"
+        upLabel="Volver arriba de Repes"
+      />
     </section>
   );
 }

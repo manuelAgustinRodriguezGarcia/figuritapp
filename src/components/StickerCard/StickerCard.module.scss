@@ -9,7 +9,7 @@
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  /* Altura unificada: franja inferior (botones o espaciador) en todas las cartas */
+  /* Altura unificada: franja inferior (botones desktop o .cardHitFooterPad dentro del botón) */
   min-height: calc(132px + #{$space-xs} + 44px + #{$space-md});
   border-radius: $radius-md;
   background-color: var(--color-canvas);
@@ -24,6 +24,7 @@
 
 .cardHit {
   @include button-reset;
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -236,6 +237,11 @@
     color: #fff;
   }
 
+  .mobileDupBadge:not(.mobileDupBadgeEmpty) {
+    background-color: #c62828;
+    color: #fff;
+  }
+
   .copyBadge.copyBadgeEmpty {
     background-color: transparent;
     color: currentColor;
@@ -423,15 +429,6 @@
   padding: $space-xs $space-md $space-md;
 }
 
-/* Misma altura que .repeatRow cuando no hay botones (faltante / móvil con gestos) */
-.repeatRowSpacer {
-  flex-shrink: 0;
-  box-sizing: border-box;
-  padding: $space-xs $space-md $space-md;
-  min-height: calc(44px + #{$space-xs} + #{$space-md});
-  pointer-events: none;
-}
-
 .repeatBtn {
   @include button-reset;
   flex-shrink: 0;
@@ -505,6 +502,56 @@
 .copyCount {
   font-weight: 800;
   letter-spacing: 0.02em;
+}
+
+/* Móvil: contador de repes (la fila − / + solo existe en desktop) */
+.mobileDupBadge {
+  position: absolute;
+  right: $space-sm;
+  bottom: $space-sm;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: $radius-full;
+  background-color: var(--color-sale);
+  color: var(--color-on-primary);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.mobileDupBadgeEmpty {
+  background-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+  box-shadow: none;
+}
+
+.mobileDupIcon {
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+
+.mobileDupCount {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  min-width: 1ch;
+  text-align: center;
+}
+
+/* Misma métrica que .repeatRow cuando no hay fila de repes: va dentro del <button> (.cardHitFooterPad) */
+.cardHitFooterPad {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: auto;
+  padding: $space-xs $space-md $space-md;
+  min-height: calc(44px + #{$space-xs} + #{$space-md});
 }
 
 .clearOverlay {

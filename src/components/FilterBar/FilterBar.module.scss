@@ -27,7 +27,7 @@
     gap: $space-md;
     border-radius: $radius-md;
     box-shadow: none;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(20px);
   }
 }
@@ -160,7 +160,6 @@
   max-width: 100%;
   padding: 3px 8px;
   border-radius: $radius-sm;
-  background-color: rgba(255, 255, 255, 0.94);
 
   @include breakpoint-up(md) {
     display: inline-block;

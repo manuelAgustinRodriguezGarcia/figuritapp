@@ -1,0 +1,53 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.scrollFab {
+  @include button-reset;
+  position: fixed;
+  z-index: 26;
+  right: var(--layout-content-gutter);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-full;
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  transition: transform $transition-snap, background-color $transition-base;
+
+  &:hover {
+    background-color: #000;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.scrollFabNavOnly {
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 16px);
+
+  @include breakpoint-up(md) {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.scrollFabAlbumFilters {
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 168px);
+
+  @include breakpoint-up(md) {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}

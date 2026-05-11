@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import FilterBar from "@/components/FilterBar/FilterBar";
+import SectionScrollFab from "@/components/SectionScrollFab/SectionScrollFab";
 import StickerGrid from "@/components/StickerGrid/StickerGrid";
 import TeamSection from "@/components/TeamSection/TeamSection";
 import EmptyState from "@/components/EmptyState/EmptyState";
@@ -106,6 +107,20 @@ export default function AlbumSection({
     });
   }, [filters.query]);
 
+  const scrollFabLayoutKey = useMemo(
+    () =>
+      `${filtered.length}-${stickers.length}-${filters.query}-${filters.ownership}-${filters.sectionId}-${filters.teamCode}-${filters.sortMode}`,
+    [
+      filtered.length,
+      stickers.length,
+      filters.query,
+      filters.ownership,
+      filters.sectionId,
+      filters.teamCode,
+      filters.sortMode,
+    ],
+  );
+
   if (!album) {
     return (
       <section className={styles.section} aria-label="Mi álbum">
@@ -186,6 +201,14 @@ export default function AlbumSection({
         hydrated={hydrated}
         onResetProgress={onResetProgress}
         onReplaceProgress={onReplaceProgress}
+      />
+
+      <SectionScrollFab
+        enabled={Boolean(album && filtered.length > 0)}
+        layoutKey={scrollFabLayoutKey}
+        variant="aboveAlbumFilters"
+        downLabel="Ir al final del álbum"
+        upLabel="Volver arriba del álbum"
       />
     </section>
   );

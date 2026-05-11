@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import MainNav from "@/components/MainNav/MainNav";
 import HomeSection from "@/components/HomeSection/HomeSection";
 import AlbumSection from "@/components/AlbumSection/AlbumSection";
@@ -46,10 +46,16 @@ export default function AppShell() {
   const handleTabChange = (id) => {
     if (!SECTION_IDS.has(id)) return;
     setActiveTab(id);
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
   };
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const html = document.documentElement;
+    const body = document.body;
+    html.scrollTop = 0;
+    body.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }, [activeTab]);
 
   if (albumError) {
     return (
