@@ -53,10 +53,32 @@
 }
 
 .cardHitFwc {
-  @include breakpoint-up(md) {
-    justify-content: flex-start;
-    gap: $space-sm;
-  }
+  justify-content: flex-start;
+  gap: $space-sm;
+}
+
+.fwcCluster {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  gap: 6px;
+}
+
+.bodyFwc {
+  flex: 0 0 auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.footFwc {
+  flex: 0 0 auto;
+  justify-content: flex-start;
 }
 
 .cardHitMobileOwned {
@@ -298,15 +320,6 @@
   align-items: stretch;
   justify-content: flex-start;
   gap: 6px;
-}
-
-.bodyFwc {
-  @include breakpoint-up(md) {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: $space-sm;
-  }
 }
 
 .teamBodyRow {

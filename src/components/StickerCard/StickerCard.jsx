@@ -264,36 +264,31 @@ function StickerCardComponent({
           )}
         </span>
 
-        <span
-          className={`${styles.body} ${sticker.category === "team" ? styles.bodyTeam : ""} ${sticker.category === "fwc" ? styles.bodyFwc : ""}`}
-        >
-          {sticker.category === "team" ? (
-            <>
-              <span className={styles.teamBodyRow}>
-                <FlagIcon flagCode={sticker.flagCode} label={sticker.teamName} size="lg" decorative />
-                <span className={styles.numberCol}>
-                  <span className={`${styles.number} ${styles.numberStickerCode}`}>
-                    {sticker.displayCode}
-                  </span>
+        {sticker.category === "team" ? (
+          <span className={`${styles.body} ${styles.bodyTeam}`}>
+            <span className={styles.teamBodyRow}>
+              <FlagIcon flagCode={sticker.flagCode} label={sticker.teamName} size="lg" decorative />
+              <span className={styles.numberCol}>
+                <span className={`${styles.number} ${styles.numberStickerCode}`}>
+                  {sticker.displayCode}
                 </span>
               </span>
-              <span className={styles.playerNameSlot}>
-                {teamPlayerName ? (
-                  <span className={styles.playerName}>{teamPlayerName}</span>
-                ) : null}
-              </span>
-            </>
-          ) : sticker.category === "fwc" ? (
-            <>
+            </span>
+            <span className={styles.playerNameSlot}>
+              {teamPlayerName ? (
+                <span className={styles.playerName}>{teamPlayerName}</span>
+              ) : null}
+            </span>
+          </span>
+        ) : sticker.category === "fwc" ? (
+          <span className={styles.fwcCluster}>
+            <span className={`${styles.body} ${styles.bodyFwc}`}>
               <FwcStickerVisual sticker={sticker} variant="card" isOwned={isOwned} />
               <span className={styles.number}>{fwcNumberLabel}</span>
-            </>
-          ) : null}
-        </span>
-
-        {sticker.category === "fwc" ? (
-          <span className={styles.foot}>
-            <span className={styles.code}>{sticker.displayCode}</span>
+            </span>
+            <span className={`${styles.foot} ${styles.footFwc}`}>
+              <span className={styles.code}>{sticker.displayCode}</span>
+            </span>
           </span>
         ) : null}
       </button>
