@@ -105,28 +105,30 @@ export default function AppShell() {
           ) : null}
         </div>
       </main>
-      <footer className={styles.footer}>
-        <div className={styles.footerContainer}>
-          <p className={styles.footerCopy}>
-            <span className={styles.footerBrand}>FIGURITAPP</span>
-            <span className={styles.footerSub}>
-              Tracker no oficial del álbum Panini FIFA World Cup 2026
-            </span>
-          </p>
-          <p className={styles.footerCredit}>
-            <span className={styles.footerCreditLead}>Desarrollado por </span>
-            <a
-              className={styles.footerCreditLink}
-              href="https://www.linkedin.com/in/manuel-agustin-rodriguez-garcia/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Manu Rodriguez
-            </a>
-            <span className={styles.footerCreditLead}>.</span>
-          </p>
-        </div>
-      </footer>
+      {activeTab !== "album" ? (
+        <footer className={styles.footer}>
+          <div className={styles.footerContainer}>
+            <p className={styles.footerCopy}>
+              <span className={styles.footerBrand}>FIGURITAPP</span>
+              <span className={styles.footerSub}>
+                Tracker no oficial del álbum Panini FIFA World Cup 2026
+              </span>
+            </p>
+            <p className={styles.footerCredit}>
+              <span className={styles.footerCreditLead}>Desarrollado por </span>
+              <a
+                className={styles.footerCreditLink}
+                href="https://www.linkedin.com/in/manuel-agustin-rodriguez-garcia/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Manu Rodriguez
+              </a>
+              <span className={styles.footerCreditLead}>.</span>
+            </p>
+          </div>
+        </footer>
+      ) : null}
     </div>
   );
 }

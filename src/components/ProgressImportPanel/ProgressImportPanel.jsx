@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { FolderDown, X } from "lucide-react";
 import {
   applyProgressImport,
   mergeParsedWithUnknownResolution,
@@ -8,6 +9,22 @@ import {
   previewProgressImport,
 } from "@/utils/progressSharing";
 import styles from "./ProgressImportPanel.module.scss";
+
+const IMPORT_MOBILE_MQ = "(max-width: 1023px)";
+
+function subscribeImportMobile(cb) {
+  const mq = window.matchMedia(IMPORT_MOBILE_MQ);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function snapshotImportMobile() {
+  return window.matchMedia(IMPORT_MOBILE_MQ).matches;
+}
+
+function serverSnapshotImportMobile() {
+  return false;
+}
 
 function PreviewCard({ row, showDup }) {
   const nameLine =
@@ -53,6 +70,13 @@ export default function ProgressImportPanel({
   const [importMode, setImportMode] = useState("merge");
   const [replaceConfirming, setReplaceConfirming] = useState(false);
   const [applyStatus, setApplyStatus] = useState(null);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const importModalTitleId = useId();
+  const isMobileLayout = useSyncExternalStore(
+    subscribeImportMobile,
+    snapshotImportMobile,
+    serverSnapshotImportMobile,
+  );
 
   const resolvedParsed = useMemo(() => {
     if (!parsedRaw) return null;
@@ -97,6 +121,7 @@ export default function ProgressImportPanel({
     onReplaceProgress(next);
     setReplaceConfirming(false);
     setApplyStatus({ tone: "success", message: "Progreso importado correctamente." });
+    setImportModalOpen(false);
     setParsedRaw(null);
     setUnknownChoice(null);
     setText("");
@@ -109,12 +134,35 @@ export default function ProgressImportPanel({
     replaceConfirming,
   ]);
 
+  const openImportModal = useCallback(() => {
+    setApplyStatus(null);
+    setImportModalOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (!importModalOpen || !isMobileLayout) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setImportModalOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [importModalOpen, isMobileLayout]);
+
+  useEffect(() => {
+    if (!isMobileLayout) setImportModalOpen(false);
+  }, [isMobileLayout]);
+
   const cancelReplace = useCallback(() => {
     setReplaceConfirming(false);
   }, []);
 
-  return (
-    <div className={styles.block}>
+  const importFormBody = (
+    <>
       <h4 className={styles.title}>Importar progreso</h4>
       <p className={styles.helper}>
         Pegá una lista de FIGURITAPP para agregar figuritas y repetidas a tu álbum.
@@ -341,6 +389,63 @@ export default function ProgressImportPanel({
           {applyStatus.message}
         </p>
       ) : null}
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {isMobileLayout && !importModalOpen ? (
+        <>
+          <button
+            type="button"
+            className={`${styles.primaryBtn} ${styles.mobileImportTrigger}`}
+            onClick={openImportModal}
+          >
+            <FolderDown size={18} strokeWidth={2} aria-hidden className={styles.mobileImportTriggerIcon} />
+            Importar progreso
+          </button>
+          {applyStatus?.tone === "success" ? (
+            <p className={styles.mobileImportSuccess} role="status" aria-live="polite">
+              {applyStatus.message}
+            </p>
+          ) : null}
+        </>
+      ) : null}
+      {isMobileLayout && importModalOpen ? (
+        <div className={styles.importModalRoot}>
+          <button
+            type="button"
+            className={styles.importModalScrim}
+            aria-label="Cerrar importación"
+            onClick={() => setImportModalOpen(false)}
+          />
+          <div
+            className={styles.importModalPanel}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={importModalTitleId}
+          >
+            <header className={styles.importModalHeader}>
+              <FolderDown size={22} strokeWidth={2} aria-hidden className={styles.importModalLeadIcon} />
+              <h2 id={importModalTitleId} className={styles.importModalTitle}>
+                Importar progreso
+              </h2>
+              <button
+                type="button"
+                className={styles.importModalClose}
+                onClick={() => setImportModalOpen(false)}
+                aria-label="Cerrar"
+              >
+                <X size={22} strokeWidth={2} aria-hidden />
+              </button>
+            </header>
+            <div className={styles.importModalBody}>
+              <div className={`${styles.block} ${styles.blockInModal}`}>{importFormBody}</div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {!isMobileLayout ? <div className={styles.block}>{importFormBody}</div> : null}
+    </>
   );
 }

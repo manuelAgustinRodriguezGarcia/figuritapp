@@ -11,9 +11,9 @@
   flex-direction: column-reverse;
   gap: $space-sm;
   padding: $space-sm var(--layout-content-gutter);
-  background-color: var(--color-canvas);
-  border-top: 1px solid var(--color-hairline);
-  box-shadow: 0 -8px 16px rgba(17, 17, 17, 0.04);
+  background-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 -6px 20px rgba(17, 17, 17, 0.06);
+  backdrop-filter: blur(20px);
 
   @include breakpoint-up(md) {
     position: sticky;
@@ -25,8 +25,6 @@
     flex-direction: column;
     padding: $space-md;
     gap: $space-md;
-    background-color: var(--color-canvas);
-    border: 1px solid var(--color-hairline);
     border-radius: $radius-md;
     box-shadow: none;
   }
@@ -110,116 +108,27 @@
   line-height: 1;
 }
 
-.chipRow {
+.selectFieldForceLabel .selectLabel {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.mobileFilterSortRow {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: $space-xs;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-sm;
   width: 100%;
 
   @include breakpoint-up(md) {
-    display: flex;
-    flex-wrap: wrap;
-    grid-template-columns: none;
-    width: auto;
-  }
-}
-
-.chip {
-  @include button-reset;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 40px;
-  padding: 0 $space-md;
-  border-radius: $radius-full;
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
-  border: 1px solid var(--color-hairline);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  transition: background-color $transition-base, color $transition-base, border-color $transition-base;
-
-  &:hover {
-    border-color: var(--color-ink);
-  }
-  &:focus-visible {
-    @include focus-ring;
-  }
-
-  @include breakpoint-up(md) {
-    width: auto;
-    height: 36px;
-    font-size: 13px;
-    flex: 0 0 auto;
-    justify-content: flex-start;
-  }
-}
-
-.chipActive {
-  background-color: var(--color-ink);
-  color: var(--color-on-primary);
-  border-color: var(--color-ink);
-}
-
-.chipLate {
-  color: var(--color-success);
-  border-color: rgba(0, 125, 72, 0.45);
-  background-color: rgba(0, 125, 72, 0.07);
-
-  &:hover {
-    border-color: var(--color-success);
-    background-color: rgba(0, 125, 72, 0.12);
-  }
-}
-
-.chipLateActive {
-  color: var(--color-on-primary);
-  background-color: var(--color-success);
-  border-color: var(--color-success);
-
-  &:hover {
-    background-color: #006d3f;
-    border-color: #006d3f;
-  }
-}
-
-.chipNola {
-  color: var(--color-sale);
-  border-color: rgba(211, 0, 5, 0.45);
-  background-color: rgba(211, 0, 5, 0.06);
-
-  &:hover {
-    border-color: var(--color-sale);
-    background-color: rgba(211, 0, 5, 0.11);
-  }
-}
-
-.chipNolaActive {
-  color: var(--color-on-primary);
-  background-color: var(--color-sale);
-  border-color: var(--color-sale);
-
-  &:hover {
-    background-color: var(--color-sale-deep);
-    border-color: var(--color-sale-deep);
-  }
-}
-
-.chipDesktopOnly {
-  display: none;
-
-  @include breakpoint-up(md) {
-    display: inline-flex;
+    display: none;
   }
 }
 
 .selectRow {
-  display: grid;
   gap: $space-sm;
-  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .selectRowDesktopOnly {
@@ -243,11 +152,16 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-mute);
+  color: var(--color-ink);
   display: none;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 8px;
+  border-radius: $radius-sm;
+  background-color: rgba(255, 255, 255, 0.94);
 
   @include breakpoint-up(md) {
-    display: block;
+    display: inline-block;
   }
 }
 
@@ -291,7 +205,20 @@
   }
 }
 
+.selectTriggerMain {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  min-width: 0;
+  flex: 1;
+}
+
+.selectTriggerFlag {
+  flex-shrink: 0;
+}
+
 .selectValue {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -366,6 +293,7 @@
   @include button-reset;
   display: flex;
   align-items: center;
+  gap: $space-sm;
   min-height: 40px;
   padding: $space-sm $space-md;
   border-radius: $radius-sm;
@@ -385,6 +313,19 @@
     outline: 2px solid var(--color-ink);
     outline-offset: -2px;
   }
+}
+
+.selectOptionFlag {
+  flex-shrink: 0;
+}
+
+.selectOptionLabel {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
 }
 
 .selectOptionActive {

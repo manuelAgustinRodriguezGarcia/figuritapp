@@ -1,4 +1,4 @@
-import { COUNTRY_META } from "@/data/countryMeta";
+import { getCountryMetaInAlbumOrder } from "@/data/countryMeta";
 import { formatStickerCodeSpaced } from "./repeatedSharing";
 import { normalizeStickerCode, getStickerByCode, isValidStickerCode } from "./stickerCode";
 import {
@@ -502,7 +502,7 @@ function mergeDuplicateEntries(entries) {
  */
 export function groupStickerCodesForShare(stickerCodes, albumStickers, teams) {
   const stickers = Array.isArray(albumStickers) ? albumStickers : [];
-  const order = Array.isArray(teams) && teams.length ? teams : COUNTRY_META;
+  const order = Array.isArray(teams) && teams.length ? teams : getCountryMetaInAlbumOrder();
   const validCodes = [];
   for (const raw of stickerCodes || []) {
     const code = normalizeStickerCode(typeof raw === "string" ? raw : String(raw));
@@ -576,7 +576,7 @@ function feedDupGroups(groups, code, count) {
  */
 export function groupDuplicateCodesForShare(duplicates, albumStickers, teams) {
   const stickers = Array.isArray(albumStickers) ? albumStickers : [];
-  const order = Array.isArray(teams) && teams.length ? teams : COUNTRY_META;
+  const order = Array.isArray(teams) && teams.length ? teams : getCountryMetaInAlbumOrder();
   const dup = duplicates && typeof duplicates === "object" && !Array.isArray(duplicates) ? duplicates : {};
   const groups = newDupGroups();
   for (const [rawKey, rawCount] of Object.entries(dup)) {
@@ -654,7 +654,7 @@ export function formatProgressShareText(progress, albumStickers, teams) {
   if (grouped.panini) ownedLines.push(formatOwnedPaniniLine());
   const olFwc = formatOwnedFwcLine(grouped.fwcNums);
   if (olFwc) ownedLines.push(olFwc);
-  for (const country of grouped.countryOrder || COUNTRY_META) {
+  for (const country of grouped.countryOrder || getCountryMetaInAlbumOrder()) {
     const m = grouped.teamNums.get(country.code);
     if (!m || m.size === 0) continue;
     const tl = formatOwnedTeamLine(country.code, m);
@@ -673,7 +673,7 @@ export function formatProgressShareText(progress, albumStickers, teams) {
   if (pl) repLines.push(pl);
   const fl = formatFwcShareLine(dupGroups);
   if (fl) repLines.push(fl);
-  for (const country of countryOrder || COUNTRY_META) {
+  for (const country of countryOrder || getCountryMetaInAlbumOrder()) {
     const m = dupGroups.teams.get(country.code);
     if (!m || m.size === 0) continue;
     const tl = formatTeamShareLine(country.code, m);

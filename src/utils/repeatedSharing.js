@@ -1,4 +1,4 @@
-import { COUNTRY_META } from "@/data/countryMeta";
+import { getCountryMetaInAlbumOrder } from "@/data/countryMeta";
 import { normalizeStickerCode, getStickerByCode, isValidStickerCode } from "./stickerCode";
 import {
   TEAM_FLAG_EMOJIS,
@@ -172,7 +172,7 @@ export function formatRepeatedShareText(duplicates, albumStickers) {
   const fwcLine = formatFwcLine(groups);
   if (fwcLine) lines.push(fwcLine);
 
-  for (const country of COUNTRY_META) {
+  for (const country of getCountryMetaInAlbumOrder()) {
     const m = groups.teams.get(country.code);
     if (!m || m.size === 0) continue;
     const tl = formatTeamLine(country.code, m);
@@ -651,7 +651,7 @@ export function formatUsefulHumanShareText(usefulRows) {
   const fwcLine = formatFwcLine(groups);
   if (fwcLine) lines.push(fwcLine);
 
-  for (const country of COUNTRY_META) {
+  for (const country of getCountryMetaInAlbumOrder()) {
     const m = groups.teams.get(country.code);
     if (!m || m.size === 0) continue;
     const tl = formatTeamLine(country.code, m);

@@ -298,3 +298,116 @@
   color: var(--color-mute);
   font-style: italic;
 }
+
+.importModalRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.importModalScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(17, 17, 17, 0.45);
+  cursor: pointer;
+}
+
+.importModalPanel {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  width: 100%;
+  max-height: 92dvh;
+  background: var(--color-canvas);
+  border-radius: $radius-md $radius-md 0 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -12px 40px rgba(17, 17, 17, 0.18);
+}
+
+.importModalHeader {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-md;
+  border-bottom: 1px solid var(--color-hairline-soft);
+  flex-shrink: 0;
+}
+
+.importModalLeadIcon {
+  flex-shrink: 0;
+  color: var(--color-ink);
+}
+
+.importModalTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.importModalClose {
+  @include button-reset;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  color: var(--color-ink);
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.importModalBody {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 0 $space-md $space-lg;
+}
+
+.blockInModal {
+  border-top: none;
+  padding-top: $space-sm;
+  padding-bottom: $space-lg;
+
+  > .title:first-of-type {
+    display: none;
+  }
+}
+
+.mobileImportTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobileImportTriggerIcon {
+  flex-shrink: 0;
+}
+
+.mobileImportSuccess {
+  margin: $space-sm 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  color: var(--color-success);
+  background-color: rgba(0, 125, 72, 0.08);
+}

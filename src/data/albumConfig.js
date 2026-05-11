@@ -39,6 +39,13 @@ export const FILTER_OWNERSHIP = {
   SPECIAL: "special",
 };
 
+/** Album grid sort modes (internal values). */
+export const SORT_MODES = Object.freeze({
+  ALBUM: "album",
+  AZ: "az",
+  ZA: "za",
+});
+
 export const STORAGE_KEY = "panini-2026-progress-v3";
 
 /** Legacy progress / import keys mapped to FWC00 */

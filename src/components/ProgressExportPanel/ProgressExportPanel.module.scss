@@ -12,6 +12,10 @@
     border-top: none;
     padding-top: 0;
   }
+
+  @media (max-width: ($bp-md - 1px)) {
+    padding-bottom: 0;
+  }
 }
 
 .title {
@@ -52,6 +56,10 @@
 .primaryBtn {
   @include button-reset;
   @include pill-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
   height: 44px;
   padding: 0 $space-xl;
   font-size: 13px;
@@ -65,6 +73,10 @@
     outline: 2px solid var(--color-info);
     outline-offset: 2px;
   }
+}
+
+.primaryBtnIcon {
+  flex-shrink: 0;
 }
 
 .secondaryBtn {
@@ -85,22 +97,84 @@
   }
 }
 
-.status {
+.toastAnchor {
+  position: fixed;
+  left: 50%;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 45;
+  width: min(90vw, 380px);
   margin: 0;
-  font-size: 13px;
-  font-weight: 500;
-  padding: $space-sm $space-md;
+  padding: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  @include breakpoint-up(md) {
+    bottom: 24px;
+  }
+}
+
+.toast {
+  margin: 0;
+  padding: $space-md $space-lg;
   border-radius: $radius-md;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--color-hairline);
+  animation: shareToastIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
-.statusSuccess {
-  color: var(--color-success);
-  background-color: rgba(0, 125, 72, 0.08);
+.toastExiting {
+  animation: shareToastOut 0.38s cubic-bezier(0.4, 0, 1, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 0;
+  }
 }
 
-.statusError {
-  color: var(--color-sale-deep);
-  background-color: rgba(211, 0, 5, 0.08);
+.toast--success {
+  color: var(--color-on-primary);
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.toast--notice {
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+}
+
+.toast--neutral {
+  color: var(--color-charcoal);
+  background-color: var(--color-soft-cloud);
+}
+
+@keyframes shareToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shareToastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
 }
 
 .manualWrap {
@@ -136,4 +210,10 @@
 
 .textPreview {
   margin-top: $space-xs;
+}
+
+@media (max-width: ($bp-md - 1px)) {
+  .actions .secondaryBtn {
+    display: none;
+  }
 }

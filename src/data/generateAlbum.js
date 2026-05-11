@@ -1,4 +1,4 @@
-import { COUNTRY_META } from "./countryMeta";
+import { COUNTRY_META, ALBUM_TEAM_ORDER, COUNTRY_BY_CODE } from "./countryMeta";
 import { FWC_STICKERS, STICKERS_PER_TEAM, SECTIONS } from "./albumConfig";
 import { PLAYER_STICKERS } from "./playerStickers";
 
@@ -71,12 +71,15 @@ export function generateAlbum() {
     }
   }
 
-  const teams = COUNTRY_META.map((team) => ({
-    ...team,
-    stickerIds: stickers
-      .filter((s) => s.category === "team" && s.teamCode === team.code)
-      .map((s) => s.code),
-  }));
+  const teams = ALBUM_TEAM_ORDER.map((code) => {
+    const team = COUNTRY_BY_CODE[code];
+    return {
+      ...team,
+      stickerIds: stickers
+        .filter((s) => s.category === "team" && s.teamCode === code)
+        .map((s) => s.code),
+    };
+  });
 
   const sections = [
     {

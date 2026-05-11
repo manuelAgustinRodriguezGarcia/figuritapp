@@ -7,8 +7,10 @@ import TeamSection from "@/components/TeamSection/TeamSection";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import ImportExportPanel from "@/components/ImportExportPanel/ImportExportPanel";
 import { applyStickerFilters } from "@/utils/stickerFilters";
+import { groupFilteredAlbumStickers } from "@/utils/stickerSorting";
 import { computeTeamStats } from "@/utils/albumStats";
-import { FILTER_OWNERSHIP } from "@/data/albumConfig";
+import { FILTER_OWNERSHIP, SORT_MODES } from "@/data/albumConfig";
+import { ALBUM_TEAM_ORDER } from "@/data/countryMeta";
 import styles from "./AlbumSection.module.scss";
 
 const DEFAULT_FILTERS = {
@@ -16,6 +18,7 @@ const DEFAULT_FILTERS = {
   ownership: FILTER_OWNERSHIP.ALL,
   sectionId: "all",
   teamCode: "all",
+  sortMode: SORT_MODES.ALBUM,
 };
 
 function StickerSection({ title, eyebrow, stickers, owned, duplicates, onToggle, density = "comfortable" }) {
@@ -56,22 +59,23 @@ export default function AlbumSection({
     [album, stickers, filters, progress],
   );
 
+  const grouped = useMemo(
+    () =>
+      groupFilteredAlbumStickers(
+        filtered,
+        teams,
+        filters.sortMode || SORT_MODES.ALBUM,
+        ALBUM_TEAM_ORDER,
+      ),
+    [filtered, teams, filters.sortMode],
+  );
+
   const filtersActive =
     filters.query.trim() !== "" ||
     filters.ownership !== FILTER_OWNERSHIP.ALL ||
     filters.sectionId !== "all" ||
-    filters.teamCode !== "all";
-
-  const grouped = useMemo(() => {
-    const fwc = filtered.filter((s) => s.category === "fwc");
-    const team = filtered.filter((s) => s.category === "team");
-
-    const teamGroups = teams
-      .map((t) => ({ team: t, stickers: team.filter((s) => s.teamCode === t.code) }))
-      .filter((group) => group.stickers.length > 0);
-
-    return { fwc, teamGroups };
-  }, [filtered, teams]);
+    filters.teamCode !== "all" ||
+    (filters.sortMode || SORT_MODES.ALBUM) !== SORT_MODES.ALBUM;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -138,7 +142,7 @@ export default function AlbumSection({
           <StickerSection
             eyebrow="Sección"
             title="FWC"
-            stickers={grouped.fwc}
+            stickers={grouped.fwcStickers}
             owned={progress.owned}
             duplicates={progress.duplicates}
             onToggle={onToggle}

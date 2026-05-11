@@ -1,7 +1,8 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import { FILTER_OWNERSHIP } from "@/data/albumConfig";
+import { FILTER_OWNERSHIP, SORT_MODES } from "@/data/albumConfig";
+import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import styles from "./FilterBar.module.scss";
 
 const OWNERSHIP_OPTIONS = [
@@ -12,19 +13,34 @@ const OWNERSHIP_OPTIONS = [
   { id: FILTER_OWNERSHIP.SPECIAL,  label: "Especiales", ariaLabel: "Mostrar las figuritas especiales",  desktopOnly: true },
 ];
 
-const SECTION_OPTIONS = [
-  { id: "all", label: "Todas las secciones" },
-  { id: "fwc", label: "FWC" },
-  { id: "team", label: "Selecciones" },
+const MOBILE_OWNERSHIP_OPTIONS = OWNERSHIP_OPTIONS.filter((o) => !o.desktopOnly);
+
+const SORT_OPTIONS = [
+  { id: SORT_MODES.ALBUM, label: "Album" },
+  { id: SORT_MODES.AZ, label: "A-Z" },
+  { id: SORT_MODES.ZA, label: "Z-A" },
 ];
 
-function CustomDropdown({ id, label, value, options, onChange, disabled = false }) {
+function CustomDropdown({
+  id,
+  label,
+  value,
+  options,
+  onChange,
+  disabled = false,
+  forceShowLabel = false,
+  hideLabel = false,
+  buttonAriaLabel,
+}) {
   const [open, setOpen] = useState(false);
   const fieldRef = useRef(null);
   const selected = options.find((option) => option.id === value) || options[0];
   const labelId = `${id}-label`;
   const buttonId = `${id}-button`;
   const listboxId = `${id}-listbox`;
+  const hasTextLabel = Boolean(String(label ?? "").trim());
+  const showLabelSpan = !hideLabel && hasTextLabel;
+  const labelledBy = showLabelSpan ? `${labelId} ${buttonId}` : undefined;
 
   function closeOnBlur(event) {
     if (!fieldRef.current?.contains(event.relatedTarget)) {
@@ -41,24 +57,38 @@ function CustomDropdown({ id, label, value, options, onChange, disabled = false 
 
   return (
     <div
-      className={styles.selectField}
+      className={`${styles.selectField} ${forceShowLabel ? styles.selectFieldForceLabel : ""}`}
       ref={fieldRef}
       onBlur={closeOnBlur}
       onKeyDown={handleKeyDown}
     >
-      <span id={labelId} className={styles.selectLabel}>{label}</span>
+      {showLabelSpan ? (
+        <span id={labelId} className={styles.selectLabel}>{label}</span>
+      ) : null}
       <button
         id={buttonId}
         type="button"
         className={`${styles.selectTrigger} ${open ? styles.selectTriggerOpen : ""}`}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-labelledby={`${labelId} ${buttonId}`}
+        aria-labelledby={labelledBy}
+        aria-label={labelledBy ? undefined : buttonAriaLabel}
         aria-controls={listboxId}
         disabled={disabled}
         onClick={() => setOpen((current) => !current)}
       >
-        <span className={styles.selectValue}>{selected?.label}</span>
+        <span className={styles.selectTriggerMain}>
+          {selected?.flagCode ? (
+            <FlagIcon
+              flagCode={selected.flagCode}
+              label={selected.label}
+              size="sm"
+              decorative
+              className={styles.selectTriggerFlag}
+            />
+          ) : null}
+          <span className={styles.selectValue}>{selected?.label}</span>
+        </span>
         <span className={styles.selectChevron} aria-hidden="true" />
       </button>
 
@@ -67,7 +97,7 @@ function CustomDropdown({ id, label, value, options, onChange, disabled = false 
           id={listboxId}
           className={styles.selectPopover}
           role="listbox"
-          aria-labelledby={labelId}
+          aria-labelledby={showLabelSpan ? labelId : undefined}
         >
           {options.map((option) => {
             const active = option.id === value;
@@ -77,13 +107,23 @@ function CustomDropdown({ id, label, value, options, onChange, disabled = false 
                 type="button"
                 role="option"
                 aria-selected={active}
+                aria-label={option.ariaLabel}
                 className={`${styles.selectOption} ${active ? styles.selectOptionActive : ""}`}
                 onClick={() => {
                   onChange(option.id);
                   setOpen(false);
                 }}
               >
-                {option.label}
+                {option.flagCode ? (
+                  <FlagIcon
+                    flagCode={option.flagCode}
+                    label={option.label}
+                    size="sm"
+                    decorative
+                    className={styles.selectOptionFlag}
+                  />
+                ) : null}
+                <span className={styles.selectOptionLabel}>{option.label}</span>
               </button>
             );
           })}
@@ -95,15 +135,20 @@ function CustomDropdown({ id, label, value, options, onChange, disabled = false 
 
 export default function FilterBar({ filters, onChange, teams }) {
   const searchId = useId();
-  const sectionId = useId();
   const teamId = useId();
+  const mobileOwnershipId = useId();
+  const mobileSortId = useId();
+  const desktopOwnershipId = useId();
+  const desktopSortId = useId();
 
   const update = (patch) => onChange?.({ ...filters, ...patch });
+  const sortMode = filters.sortMode || SORT_MODES.ALBUM;
   const teamOptions = [
     { id: "all", label: "Todas las selecciones" },
     ...(teams || []).map((team) => ({
       id: team.code,
       label: `${team.code} — ${team.name}`,
+      flagCode: team.flagCode,
     })),
   ];
 
@@ -139,40 +184,32 @@ export default function FilterBar({ filters, onChange, teams }) {
         </div>
       </div>
 
-      <div className={styles.chipRow} role="group" aria-label="Filtrar por estado">
-        {OWNERSHIP_OPTIONS.map((option) => {
-          const active = filters.ownership === option.id;
-          const desktopOnlyClass = option.desktopOnly ? styles.chipDesktopOnly : "";
-          let toneClass = "";
-          if (option.id === FILTER_OWNERSHIP.OWNED) {
-            toneClass = active ? styles.chipLateActive : styles.chipLate;
-          } else if (option.id === FILTER_OWNERSHIP.MISSING) {
-            toneClass = active ? styles.chipNolaActive : styles.chipNola;
-          }
-          const baseActiveClass =
-            active && !toneClass ? styles.chipActive : "";
-          return (
-            <button
-              key={option.id}
-              type="button"
-              className={`${styles.chip} ${baseActiveClass} ${toneClass} ${desktopOnlyClass}`}
-              aria-pressed={active}
-              aria-label={option.ariaLabel}
-              onClick={() => update({ ownership: option.id })}
-            >
-              {option.label}
-            </button>
-          );
-        })}
+      <div className={styles.mobileFilterSortRow}>
+        <CustomDropdown
+          id={mobileOwnershipId}
+          label="Filtro"
+          value={filters.ownership}
+          options={MOBILE_OWNERSHIP_OPTIONS}
+          onChange={(ownership) => update({ ownership })}
+          forceShowLabel
+        />
+        <CustomDropdown
+          id={mobileSortId}
+          label="Orden"
+          value={sortMode}
+          options={SORT_OPTIONS}
+          onChange={(sortModeValue) => update({ sortMode: sortModeValue })}
+          forceShowLabel
+        />
       </div>
 
       <div className={`${styles.selectRow} ${styles.selectRowDesktopOnly}`}>
         <CustomDropdown
-          id={sectionId}
-          label="Sección"
-          value={filters.sectionId}
-          options={SECTION_OPTIONS}
-          onChange={(sectionIdValue) => update({ sectionId: sectionIdValue })}
+          id={desktopOwnershipId}
+          label="Estado"
+          value={filters.ownership}
+          options={OWNERSHIP_OPTIONS}
+          onChange={(ownership) => update({ ownership })}
         />
         <CustomDropdown
           id={teamId}
@@ -180,6 +217,13 @@ export default function FilterBar({ filters, onChange, teams }) {
           value={filters.teamCode}
           options={teamOptions}
           onChange={(teamCode) => update({ teamCode })}
+        />
+        <CustomDropdown
+          id={desktopSortId}
+          label="Orden"
+          value={sortMode}
+          options={SORT_OPTIONS}
+          onChange={(sortModeValue) => update({ sortMode: sortModeValue })}
         />
       </div>
     </section>

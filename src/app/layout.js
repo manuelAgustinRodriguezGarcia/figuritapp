@@ -16,10 +16,14 @@ const fontDisplay = Bebas_Neue({
 });
 
 export const metadata = {
-  title: "FIGURITAPP — Mundial 2026",
+  title: "FiguritApp",
   description:
     "Seguí tu progreso del álbum Panini FIFA World Cup 2026: figuritas conseguidas, faltantes y repetidas.",
   applicationName: "FIGURITAPP",
+  icons: {
+    icon: [{ url: "/logo.png", type: "image/png" }],
+    apple: [{ url: "/logo.png", type: "image/png" }],
+  },
 };
 
 export const viewport = {

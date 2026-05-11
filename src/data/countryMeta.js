@@ -2,6 +2,54 @@
 // Note: Panini/FIFA team codes do not always match flag-icons codes
 // (e.g. ARG -> ar, ENG -> gb-eng, KOR -> kr, KSA -> sa, RSA -> za, CIV -> ci, COD -> cd).
 
+/** Official FIFA World Cup 2026 group order (Group A → L). Source of truth for album UI order. */
+export const ALBUM_TEAM_ORDER = [
+  "MEX", "RSA", "KOR", "CZE",
+  "CAN", "BIH", "QAT", "SUI",
+  "BRA", "MAR", "HAI", "SCO",
+  "USA", "PAR", "AUS", "TUR",
+  "GER", "CUW", "CIV", "ECU",
+  "NED", "JPN", "SWE", "TUN",
+  "BEL", "EGY", "IRN", "NZL",
+  "ESP", "CPV", "KSA", "URU",
+  "FRA", "SEN", "IRQ", "NOR",
+  "ARG", "ALG", "AUT", "JOR",
+  "POR", "COD", "UZB", "COL",
+  "ENG", "CRO", "GHA", "PAN",
+];
+
+function validateAlbumTeamOrder(metaList) {
+  const metaCodes = new Set(metaList.map((c) => c.code));
+  const order = ALBUM_TEAM_ORDER;
+
+  if (order.length !== 48) {
+    throw new Error(`[ALBUM_TEAM_ORDER] Expected 48 team codes, got ${order.length}.`);
+  }
+  if (order[0] !== "MEX") {
+    throw new Error(`[ALBUM_TEAM_ORDER] First team must be MEX, got "${order[0]}".`);
+  }
+  if (order[order.length - 1] !== "PAN") {
+    throw new Error(`[ALBUM_TEAM_ORDER] Last team must be PAN, got "${order[order.length - 1]}".`);
+  }
+
+  const seen = new Set();
+  for (const code of order) {
+    if (seen.has(code)) {
+      throw new Error(`[ALBUM_TEAM_ORDER] Duplicate team code: "${code}".`);
+    }
+    seen.add(code);
+    if (!metaCodes.has(code)) {
+      throw new Error(`[ALBUM_TEAM_ORDER] Unknown team code "${code}" (not in COUNTRY_META / team metadata).`);
+    }
+  }
+
+  for (const code of metaCodes) {
+    if (!seen.has(code)) {
+      throw new Error(`[ALBUM_TEAM_ORDER] Team metadata code "${code}" is missing from ALBUM_TEAM_ORDER.`);
+    }
+  }
+}
+
 export const COUNTRY_META = [
   { code: "ALG", name: "Argelia",                  flagCode: "dz",     colors: { primary: "#006233", secondary: "#FFFFFF", accent: "#D21034" } },
   { code: "ARG", name: "Argentina",                flagCode: "ar",     colors: { primary: "#75AADB", secondary: "#FFFFFF", accent: "#F6B40E" } },
@@ -57,3 +105,10 @@ export const COUNTRY_BY_CODE = COUNTRY_META.reduce((acc, country) => {
   acc[country.code] = country;
   return acc;
 }, {});
+
+validateAlbumTeamOrder(COUNTRY_META);
+
+/** Country metadata rows in official album (group) order. */
+export function getCountryMetaInAlbumOrder() {
+  return ALBUM_TEAM_ORDER.map((code) => COUNTRY_BY_CODE[code]);
+}

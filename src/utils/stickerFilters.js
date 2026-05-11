@@ -1,4 +1,7 @@
 import { FILTER_OWNERSHIP } from "@/data/albumConfig";
+import { sortStickers } from "@/utils/stickerSorting";
+
+export { sortStickers, groupFilteredAlbumStickers, orderTeamsForDisplay } from "@/utils/stickerSorting";
 
 function normalize(text) {
   return String(text || "")
@@ -60,4 +63,16 @@ export function applyStickerFilters(stickers, filters, progress) {
 
     return true;
   });
+}
+
+/**
+ * @param {object[]} stickers
+ * @param {object} filters
+ * @param {object} progress
+ * @param {string} sortMode
+ * @param {string[]} albumTeamOrder
+ */
+export function applyStickerFiltersAndSort(stickers, filters, progress, sortMode, albumTeamOrder) {
+  const filtered = applyStickerFilters(stickers, filters, progress);
+  return sortStickers(filtered, sortMode, albumTeamOrder);
 }
