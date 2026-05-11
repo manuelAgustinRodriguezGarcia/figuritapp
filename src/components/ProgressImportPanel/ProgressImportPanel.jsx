@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
-import { FolderDown, X } from "lucide-react";
+import { ChevronDown, FolderDown, X } from "lucide-react";
 import {
   applyProgressImport,
   mergeParsedWithUnknownResolution,
@@ -71,7 +71,9 @@ export default function ProgressImportPanel({
   const [replaceConfirming, setReplaceConfirming] = useState(false);
   const [applyStatus, setApplyStatus] = useState(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [previewDetailsOpen, setPreviewDetailsOpen] = useState(false);
   const importModalTitleId = useId();
+  const previewDetailsId = useId();
   const isMobileLayout = useSyncExternalStore(
     subscribeImportMobile,
     snapshotImportMobile,
@@ -92,6 +94,22 @@ export default function ProgressImportPanel({
     return previewProgressImport(resolvedParsed, currentProgress, albumStickers);
   }, [resolvedParsed, currentProgress, albumStickers]);
 
+  const previewFiguritaCount = useMemo(() => {
+    if (!preview) return 0;
+    return (
+      preview.ownedToAdd.length +
+      preview.duplicatesToAdd.length +
+      preview.duplicatesAlreadyPresent.length +
+      preview.ownedAlreadyPresent.length +
+      preview.unknownRows.length
+    );
+  }, [preview]);
+
+  const previewOtherCount = useMemo(() => {
+    if (!preview) return 0;
+    return preview.invalid.length + preview.warnings.length;
+  }, [preview]);
+
   const hasValidStickers =
     resolvedParsed &&
     (resolvedParsed.owned?.length > 0 || resolvedParsed.duplicates?.length > 0);
@@ -99,6 +117,7 @@ export default function ProgressImportPanel({
   const analyze = useCallback(() => {
     setApplyStatus(null);
     setUnknownChoice(null);
+    setPreviewDetailsOpen(false);
     const p = parseProgressShareText(text, albumStickers || []);
     setParsedRaw(p);
   }, [text, albumStickers]);
@@ -109,6 +128,7 @@ export default function ProgressImportPanel({
     setUnknownChoice(null);
     setReplaceConfirming(false);
     setApplyStatus(null);
+    setPreviewDetailsOpen(false);
   }, []);
 
   const applyImport = useCallback(() => {
@@ -154,7 +174,9 @@ export default function ProgressImportPanel({
   }, [importModalOpen, isMobileLayout]);
 
   useEffect(() => {
-    if (!isMobileLayout) setImportModalOpen(false);
+    if (isMobileLayout) return undefined;
+    const id = window.setTimeout(() => setImportModalOpen(false), 0);
+    return () => window.clearTimeout(id);
   }, [isMobileLayout]);
 
   const cancelReplace = useCallback(() => {
@@ -243,82 +265,119 @@ export default function ProgressImportPanel({
 
       {parsedRaw && resolvedParsed && preview ? (
         <div className={styles.preview}>
-          <section className={styles.previewSection}>
-            <h5 className={styles.previewTitle}>Figuritas detectadas</h5>
-            {preview.ownedToAdd.length === 0 ? (
-              <p className={styles.emptyHint}>No hay figuritas nuevas en esta lista.</p>
-            ) : (
-              <ul className={styles.previewList}>
-                {preview.ownedToAdd.map((row) => (
-                  <PreviewCard key={`add-${row.code}`} row={row} showDup={false} />
-                ))}
-              </ul>
-            )}
-          </section>
+          <button
+            type="button"
+            className={styles.previewDisclosure}
+            onClick={() => setPreviewDetailsOpen((v) => !v)}
+            aria-expanded={previewDetailsOpen}
+            aria-controls={previewDetailsId}
+          >
+            <span className={styles.previewDisclosureText}>
+              {previewDetailsOpen ? (
+                "Ocultar lista del análisis"
+              ) : (
+                <>
+                  <span className={styles.previewDisclosureCount}>{previewFiguritaCount}</span>
+                  {previewFiguritaCount === 1 ? " figurita" : " figuritas"}
+                  {previewOtherCount > 0 ? (
+                    <span className={styles.previewDisclosureExtra}>
+                      {` · +${previewOtherCount} ${previewOtherCount === 1 ? "aviso o sin reconocer" : "avisos o sin reconocer"}`}
+                    </span>
+                  ) : null}
+                  <span className={styles.previewDisclosureHint}> · ver lista</span>
+                </>
+              )}
+            </span>
+            <ChevronDown
+              size={20}
+              strokeWidth={2}
+              aria-hidden
+              className={`${styles.previewDisclosureChevron} ${previewDetailsOpen ? styles.previewDisclosureChevronOpen : ""}`}
+            />
+          </button>
 
-          <section className={styles.previewSection}>
-            <h5 className={styles.previewTitle}>Repetidas detectadas</h5>
-            {preview.duplicatesToAdd.length === 0 && preview.duplicatesAlreadyPresent.length === 0 ? (
-              <p className={styles.emptyHint}>No hay repetidas en esta lista.</p>
-            ) : (
-              <ul className={styles.previewList}>
-                {[...preview.duplicatesToAdd, ...preview.duplicatesAlreadyPresent].map((row) => (
-                  <PreviewCard key={`dup-${row.code}`} row={row} showDup />
-                ))}
-              </ul>
-            )}
-          </section>
+          <div
+            id={previewDetailsId}
+            className={styles.previewDetails}
+            hidden={!previewDetailsOpen}
+          >
+            <section className={styles.previewSection}>
+              <h5 className={styles.previewTitle}>Figuritas detectadas</h5>
+              {preview.ownedToAdd.length === 0 ? (
+                <p className={styles.emptyHint}>No hay figuritas nuevas en esta lista.</p>
+              ) : (
+                <ul className={styles.previewList}>
+                  {preview.ownedToAdd.map((row) => (
+                    <PreviewCard key={`add-${row.code}`} row={row} showDup={false} />
+                  ))}
+                </ul>
+              )}
+            </section>
 
-          <section className={styles.previewSection}>
-            <h5 className={styles.previewTitle}>Ya estaban en tu álbum</h5>
-            {preview.ownedAlreadyPresent.length === 0 ? (
-              <p className={styles.emptyHint}>Ninguna de estas figuritas ya estaba marcada.</p>
-            ) : (
-              <ul className={styles.previewList}>
-                {preview.ownedAlreadyPresent.map((row) => (
-                  <PreviewCard key={`had-${row.code}`} row={row} showDup={false} />
-                ))}
-              </ul>
-            )}
-          </section>
+            <section className={styles.previewSection}>
+              <h5 className={styles.previewTitle}>Repetidas detectadas</h5>
+              {preview.duplicatesToAdd.length === 0 && preview.duplicatesAlreadyPresent.length === 0 ? (
+                <p className={styles.emptyHint}>No hay repetidas en esta lista.</p>
+              ) : (
+                <ul className={styles.previewList}>
+                  {[...preview.duplicatesToAdd, ...preview.duplicatesAlreadyPresent].map((row) => (
+                    <PreviewCard key={`dup-${row.code}`} row={row} showDup />
+                  ))}
+                </ul>
+              )}
+            </section>
 
-          <section className={styles.previewSection}>
-            <h5 className={styles.previewTitle}>No reconocidas</h5>
-            {preview.invalid.length === 0 && preview.unknownRows.length === 0 ? (
-              <p className={styles.emptyHint}>No hay líneas sin reconocer.</p>
-            ) : (
-              <ul className={styles.previewList}>
-                {preview.invalid.map((inv, i) => (
-                  <li key={`inv-${i}`} className={styles.card}>
-                    <p className={styles.cardCode}>{inv.value}</p>
-                    <p className={styles.cardLine}>{inv.reason}</p>
-                  </li>
-                ))}
-                {preview.unknownRows.map((row) => (
-                  <li key={`un-${row.code}`} className={styles.card}>
-                    <p className={styles.cardCode}>{row.displayCode}</p>
-                    <p className={styles.cardLine}>Revisá el contexto de la lista.</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+            <section className={styles.previewSection}>
+              <h5 className={styles.previewTitle}>Ya estaban en tu álbum</h5>
+              {preview.ownedAlreadyPresent.length === 0 ? (
+                <p className={styles.emptyHint}>Ninguna de estas figuritas ya estaba marcada.</p>
+              ) : (
+                <ul className={styles.previewList}>
+                  {preview.ownedAlreadyPresent.map((row) => (
+                    <PreviewCard key={`had-${row.code}`} row={row} showDup={false} />
+                  ))}
+                </ul>
+              )}
+            </section>
 
-          <section className={styles.previewSection}>
-            <h5 className={styles.previewTitle}>Advertencias</h5>
-            {preview.warnings.length === 0 ? (
-              <p className={styles.emptyHint}>Sin advertencias.</p>
-            ) : (
-              <ul className={styles.previewList}>
-                {preview.warnings.map((w, i) => (
-                  <li key={`w-${i}`} className={styles.card}>
-                    <p className={styles.cardLine}>{w.reason}</p>
-                    {w.sourceLine ? <p className={styles.cardMeta}>{w.sourceLine}</p> : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+            <section className={styles.previewSection}>
+              <h5 className={styles.previewTitle}>No reconocidas</h5>
+              {preview.invalid.length === 0 && preview.unknownRows.length === 0 ? (
+                <p className={styles.emptyHint}>No hay líneas sin reconocer.</p>
+              ) : (
+                <ul className={styles.previewList}>
+                  {preview.invalid.map((inv, i) => (
+                    <li key={`inv-${i}`} className={styles.card}>
+                      <p className={styles.cardCode}>{inv.value}</p>
+                      <p className={styles.cardLine}>{inv.reason}</p>
+                    </li>
+                  ))}
+                  {preview.unknownRows.map((row) => (
+                    <li key={`un-${row.code}`} className={styles.card}>
+                      <p className={styles.cardCode}>{row.displayCode}</p>
+                      <p className={styles.cardLine}>Revisá el contexto de la lista.</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className={styles.previewSection}>
+              <h5 className={styles.previewTitle}>Advertencias</h5>
+              {preview.warnings.length === 0 ? (
+                <p className={styles.emptyHint}>Sin advertencias.</p>
+              ) : (
+                <ul className={styles.previewList}>
+                  {preview.warnings.map((w, i) => (
+                    <li key={`w-${i}`} className={styles.card}>
+                      <p className={styles.cardLine}>{w.reason}</p>
+                      {w.sourceLine ? <p className={styles.cardMeta}>{w.sourceLine}</p> : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
 
           <fieldset className={styles.modes}>
             <legend className={styles.previewTitle}>Modo de importación</legend>

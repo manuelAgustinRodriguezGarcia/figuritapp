@@ -88,6 +88,8 @@ export default function AppShell() {
               progress={progress}
               hydrated={hydrated}
               onToggle={progressActions.toggleOwned}
+              onAddDuplicate={progressActions.addDuplicate}
+              onDecreaseDuplicate={progressActions.decreaseDuplicate}
               onReplaceProgress={progressActions.replaceProgress}
               onResetProgress={progressActions.resetProgress}
             />

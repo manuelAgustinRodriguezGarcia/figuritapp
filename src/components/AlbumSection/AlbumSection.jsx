@@ -21,7 +21,17 @@ const DEFAULT_FILTERS = {
   sortMode: SORT_MODES.ALBUM,
 };
 
-function StickerSection({ title, eyebrow, stickers, owned, duplicates, onToggle, density = "comfortable" }) {
+function StickerSection({
+  title,
+  eyebrow,
+  stickers,
+  owned,
+  duplicates,
+  onToggle,
+  onAddDuplicate,
+  onDecreaseDuplicate,
+  density = "comfortable",
+}) {
   if (!stickers?.length) return null;
   return (
     <section className={styles.specialSection}>
@@ -34,6 +44,8 @@ function StickerSection({ title, eyebrow, stickers, owned, duplicates, onToggle,
         owned={owned}
         duplicates={duplicates}
         onToggle={onToggle}
+        onAddDuplicate={onAddDuplicate}
+        onDecreaseDuplicate={onDecreaseDuplicate}
         density={density}
       />
     </section>
@@ -45,6 +57,8 @@ export default function AlbumSection({
   progress,
   hydrated,
   onToggle,
+  onAddDuplicate,
+  onDecreaseDuplicate,
   onReplaceProgress,
   onResetProgress,
 }) {
@@ -146,6 +160,8 @@ export default function AlbumSection({
             owned={progress.owned}
             duplicates={progress.duplicates}
             onToggle={onToggle}
+            onAddDuplicate={onAddDuplicate}
+            onDecreaseDuplicate={onDecreaseDuplicate}
             density="compact"
           />
           {grouped.teamGroups.map(({ team, stickers: teamStickers }) => (
@@ -157,6 +173,8 @@ export default function AlbumSection({
               duplicates={progress.duplicates}
               stats={computeTeamStats(team, album, progress)}
               onToggle={onToggle}
+              onAddDuplicate={onAddDuplicate}
+              onDecreaseDuplicate={onDecreaseDuplicate}
             />
           ))}
         </div>

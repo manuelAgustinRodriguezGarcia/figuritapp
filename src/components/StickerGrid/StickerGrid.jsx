@@ -3,7 +3,15 @@
 import StickerCard from "@/components/StickerCard/StickerCard";
 import styles from "./StickerGrid.module.scss";
 
-export default function StickerGrid({ stickers, owned, duplicates, onToggle, density = "comfortable" }) {
+export default function StickerGrid({
+  stickers,
+  owned,
+  duplicates,
+  onToggle,
+  onAddDuplicate,
+  onDecreaseDuplicate,
+  density = "comfortable",
+}) {
   if (!stickers?.length) return null;
 
   const classes = [
@@ -20,6 +28,8 @@ export default function StickerGrid({ stickers, owned, duplicates, onToggle, den
             owned={!!owned?.[sticker.code]}
             duplicateCount={Number(duplicates?.[sticker.code]) || 0}
             onToggle={onToggle}
+            onAddDuplicate={onAddDuplicate}
+            onDecreaseDuplicate={onDecreaseDuplicate}
           />
         </div>
       ))}

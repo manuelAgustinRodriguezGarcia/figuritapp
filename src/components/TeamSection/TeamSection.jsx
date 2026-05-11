@@ -4,7 +4,16 @@ import StickerGrid from "@/components/StickerGrid/StickerGrid";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import styles from "./TeamSection.module.scss";
 
-export default function TeamSection({ team, stickers, owned, duplicates, stats, onToggle }) {
+export default function TeamSection({
+  team,
+  stickers,
+  owned,
+  duplicates,
+  stats,
+  onToggle,
+  onAddDuplicate,
+  onDecreaseDuplicate,
+}) {
   if (!stickers?.length) return null;
   const teamColorClass = `teamColor--${team.code}`;
   const obtained = stats?.obtained ?? 0;
@@ -38,6 +47,8 @@ export default function TeamSection({ team, stickers, owned, duplicates, stats, 
         owned={owned}
         duplicates={duplicates}
         onToggle={onToggle}
+        onAddDuplicate={onAddDuplicate}
+        onDecreaseDuplicate={onDecreaseDuplicate}
       />
     </article>
   );

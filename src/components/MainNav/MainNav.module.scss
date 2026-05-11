@@ -97,6 +97,93 @@
   }
 }
 
+.topCluster {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.albumGesturesBtn {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  color: var(--color-ink);
+  background-color: var(--color-soft-cloud);
+  border: 1px solid var(--color-hairline);
+  transition: background-color $transition-base, border-color $transition-base;
+
+  &:hover {
+    background-color: var(--color-canvas);
+    border-color: var(--color-ink);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.gesturesScrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-lg;
+  background-color: rgba(17, 17, 17, 0.45);
+}
+
+.gesturesPanel {
+  width: 100%;
+  max-width: 400px;
+  padding: $space-lg;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+.gesturesTitle {
+  margin: 0 0 $space-md;
+  font-family: var(--font-family-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.gesturesList {
+  margin: 0 0 $space-lg;
+  padding-left: 1.1rem;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-charcoal);
+
+  li + li {
+    margin-top: $space-sm;
+  }
+
+  strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+}
+
+.gesturesClose {
+  @include button-reset;
+  @include pill-primary;
+  width: 100%;
+  height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .tabList {
   list-style: none;
   margin: 0;

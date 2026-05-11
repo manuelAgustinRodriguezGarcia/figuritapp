@@ -1,18 +1,21 @@
 @use "../../styles/variables" as *;
 @use "../../styles/mixins" as *;
 
-.card {
-  @include button-reset;
+.cardRoot {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: space-between;
-  gap: $space-sm;
+  flex: 1 1 auto;
   width: 100%;
-  min-height: 132px;
-  padding: $space-sm $space-md $space-md;
+  min-width: 0;
+  /* Misma altura que carta conseguida con fila − / Copy / +: reserva aunque sea faltante */
+  min-height: calc(132px + #{$space-xs} + 44px + #{$space-md});
   border-radius: $radius-md;
+
+  @media (max-width: ($bp-md - 1px)) {
+    min-height: 132px;
+  }
   background-color: var(--color-canvas);
   border: 1px solid var(--color-hairline);
   transition: transform $transition-snap, border-color $transition-base, background-color $transition-base, box-shadow $transition-base;
@@ -21,9 +24,43 @@
     border-color: var(--color-ink);
     transform: translateY(-1px);
   }
+}
 
-  &:active { transform: scale(0.98); }
-  &:focus-visible { @include focus-ring; }
+.cardHit {
+  @include button-reset;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: $space-sm;
+  min-height: 0;
+  padding: $space-sm $space-md 0;
+  border-radius: $radius-md $radius-md 0 0;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  font: inherit;
+
+  &:focus-visible {
+    @include focus-ring;
+    outline-offset: -2px;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.cardHitFwc {
+  @include breakpoint-up(md) {
+    justify-content: flex-start;
+    gap: $space-sm;
+  }
+}
+
+.cardHitMobileOwned {
+  touch-action: manipulation;
 }
 
 .owned {
@@ -176,9 +213,24 @@
     color: #0a1628;
   }
 
-  .repeated {
+  .copyBadge {
     background-color: #c62828;
     color: #fff;
+  }
+
+  .copyBadge.copyBadgeEmpty {
+    background-color: transparent;
+    color: currentColor;
+  }
+
+  .repeatBtn {
+    color: var(--color-on-primary);
+    border-color: rgba(255, 255, 255, 0.35);
+    background-color: rgba(255, 255, 255, 0.12);
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.22);
+    }
   }
 }
 
@@ -246,6 +298,15 @@
   align-items: stretch;
   justify-content: flex-start;
   gap: 6px;
+}
+
+.bodyFwc {
+  @include breakpoint-up(md) {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $space-sm;
+  }
 }
 
 .teamBodyRow {
@@ -344,14 +405,169 @@
   font-weight: 600;
 }
 
-.repeated {
+.repeatRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  flex-shrink: 0;
+  padding: $space-xs $space-md $space-md;
+
+  @media (max-width: ($bp-md - 1px)) {
+    display: none;
+  }
+}
+
+.repeatBtn {
+  @include button-reset;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  padding: 2px $space-sm;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: $radius-md;
+  border: 1px solid var(--color-hairline);
+  background-color: var(--color-soft-cloud);
+  color: var(--color-ink);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color $transition-base, border-color $transition-base, opacity $transition-base;
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-canvas);
+    border-color: var(--color-ink);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.owned .repeatBtn {
+  color: var(--color-on-primary);
+  border-color: rgba(255, 255, 255, 0.32);
+  background-color: rgba(255, 255, 255, 0.12);
+
+  &:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+.copyBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 56px;
+  padding: 6px $space-sm;
   border-radius: $radius-full;
   background-color: var(--color-sale);
   color: var(--color-on-primary);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.copyBadgeEmpty {
+  background-color: transparent;
+  color: currentColor;
+  box-shadow: none;
+}
+
+.copyIcon {
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+
+.copyCount {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.clearOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-sm;
+  border-radius: inherit;
+  background-color: rgba(17, 17, 17, 0.52);
+}
+
+.clearPanel {
+  width: 100%;
+  max-width: 220px;
+  padding: $space-md $space-lg;
+  border-radius: $radius-md;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.clearTitle {
+  margin: 0 0 $space-md;
+  font-family: var(--font-family-display);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-ink);
+}
+
+.clearActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-lg;
+}
+
+.clearBtn {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: $radius-full;
+  border: 2px solid var(--color-hairline);
+  color: var(--color-ink);
+  background-color: var(--color-soft-cloud);
+  transition: background-color $transition-base, border-color $transition-base, transform $transition-snap;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.clearBtnDismiss {
+  &:hover {
+    background-color: var(--color-canvas);
+    border-color: var(--color-ink);
+  }
+}
+
+.clearBtnConfirm {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+  border-color: var(--color-ink);
+
+  &:hover {
+    background-color: #000;
+    border-color: #000;
+  }
 }
