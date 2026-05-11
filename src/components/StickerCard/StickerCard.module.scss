@@ -282,6 +282,7 @@
   width: 100%;
   min-height: 46px;
   box-sizing: border-box;
+  padding-left: 6px;
 }
 
 .section {
@@ -552,6 +553,40 @@
   margin-top: auto;
   padding: $space-xs $space-md $space-md;
   min-height: calc(44px + #{$space-xs} + #{$space-md});
+}
+
+/* ≤1023px alineado con StickerCard (MOBILE_MQ): menos altura, misma estructura (desktop sin cambios) */
+@media (max-width: 1023px) {
+  .cardRoot {
+    min-height: calc(118px + #{$space-xs} + 22px + #{$space-sm});
+  }
+
+  .cardHit {
+    padding: $space-xs $space-sm 0;
+    gap: $space-xs;
+  }
+
+  .cardHitFwc {
+    gap: $space-xs;
+  }
+
+  .fwcCluster {
+    gap: 4px;
+  }
+
+  .headTeamTitles {
+    min-height: 40px;
+    gap: 4px;
+  }
+
+  .playerNameSlot {
+    height: 28px;
+  }
+
+  .cardHitFooterPad {
+    padding: 2px $space-sm $space-sm;
+    min-height: 22px;
+  }
 }
 
 .clearOverlay {
