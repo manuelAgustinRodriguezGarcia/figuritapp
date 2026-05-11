@@ -258,42 +258,10 @@
   }
 }
 
-.head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: $space-sm;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: currentColor;
-  opacity: 0.78;
-}
-
-/* Misma altura de cabecera con o sin pastilla Escudo/Equipo → el cuerpo alinea en la grilla */
-.headTeamTitles {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 6px;
-  min-width: 0;
-  width: 100%;
-  min-height: 46px;
-  box-sizing: border-box;
-  padding-left: 6px;
-}
-
-.section {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .specialPill {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   padding: 2px 8px;
   border-radius: $radius-full;
   background-color: var(--color-ink);
@@ -323,6 +291,10 @@
   align-items: stretch;
   justify-content: flex-start;
   gap: 6px;
+  box-sizing: border-box;
+  width: 100%;
+  padding-inline: $space-sm;
+  padding-block: $space-xs;
 }
 
 .teamBodyRow {
@@ -332,16 +304,18 @@
   gap: $space-sm;
   min-width: 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
-/* Altura fija = 2 renglones (12px × 1.3 × 2) para alinear todas las selecciones */
+/* Misma altura para pastilla Escudo/Equipo o nombre de jugador */
 .playerNameSlot {
   width: 100%;
-  height: 32px;
+  height: 34px;
   flex-shrink: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
+  box-sizing: border-box;
 }
 
 .playerName {
@@ -354,14 +328,20 @@
   opacity: 0.9;
   width: 100%;
   min-width: 0;
-  max-height: 100%;
+  min-height: 0;
   margin: 0;
+  align-self: stretch;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-align: left;
   word-break: break-word;
+}
+
+.playerNameSlot .specialPill {
+  flex-shrink: 0;
+  max-width: 100%;
 }
 
 .numberCol {
@@ -574,13 +554,8 @@
     gap: 4px;
   }
 
-  .headTeamTitles {
-    min-height: 40px;
-    gap: 4px;
-  }
-
   .playerNameSlot {
-    height: 28px;
+    height: 34px;
   }
 
   .cardHitFooterPad {

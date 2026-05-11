@@ -24,23 +24,12 @@ function serverMobile() {
   return false;
 }
 
-function getSectionLabel(sticker) {
-  switch (sticker.category) {
-    case "fwc":
-      return "FWC";
-    case "team":
-      return sticker.teamName || sticker.teamCode || "Selección";
-    default:
-      return "";
-  }
-}
-
 function getFwcNumberLabel(sticker) {
   if (sticker.category === "fwc") return sticker.code.replace(/^FWC/, "");
   return "";
 }
 
-/** Pastilla bajo el nombre de sección (FWC sigue usando "Especial"). */
+/** Pastilla Escudo / Equipo en cabecera de selección cuando aplica. */
 function getHeadPillLabel(sticker) {
   if (sticker.category === "team") {
     if (sticker.isSpecial) return "Escudo";
@@ -80,7 +69,6 @@ function StickerCardComponent({
   }, [duplicateCount]);
 
   const isOwned = !!owned;
-  const sectionLabel = getSectionLabel(sticker);
   const fwcNumberLabel = getFwcNumberLabel(sticker);
   const headPillLabel = getHeadPillLabel(sticker);
   const teamPlayerName = getTeamPlayerName(sticker);
@@ -259,20 +247,6 @@ function StickerCardComponent({
         aria-label={accessibleLabel}
         title={accessibleLabel}
       >
-        <span className={styles.head}>
-          {sticker.category === "team" ? (
-            <span className={styles.headTeamTitles}>
-              <span className={styles.section}>{sectionLabel}</span>
-              {headPillLabel ? <span className={styles.specialPill}>{headPillLabel}</span> : null}
-            </span>
-          ) : (
-            <>
-              <span className={styles.section}>{sectionLabel}</span>
-              {headPillLabel ? <span className={styles.specialPill}>{headPillLabel}</span> : null}
-            </>
-          )}
-        </span>
-
         {sticker.category === "team" ? (
           <span className={`${styles.body} ${styles.bodyTeam}`}>
             <span className={styles.teamBodyRow}>
@@ -284,7 +258,9 @@ function StickerCardComponent({
               </span>
             </span>
             <span className={styles.playerNameSlot}>
-              {teamPlayerName ? (
+              {headPillLabel ? (
+                <span className={styles.specialPill}>{headPillLabel}</span>
+              ) : teamPlayerName ? (
                 <span className={styles.playerName}>{teamPlayerName}</span>
               ) : null}
             </span>
