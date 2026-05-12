@@ -36,11 +36,13 @@ export default function SectionScrollFab({
   }, []);
 
   useEffect(() => {
-    if (!enabled) {
-      setVisible(false);
-      return undefined;
-    }
-    update();
+    if (enabled) return undefined;
+    const id = window.setTimeout(() => setVisible(false), 0);
+    return () => window.clearTimeout(id);
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) return undefined;
     const schedule = () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(update);
