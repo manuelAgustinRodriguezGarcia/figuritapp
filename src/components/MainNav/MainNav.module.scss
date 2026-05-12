@@ -126,6 +126,11 @@
   &:focus-visible {
     @include focus-ring;
   }
+
+  /* Solo móvil: en desktop las repes usan botones en la carta */
+  @include breakpoint-up(md) {
+    display: none;
+  }
 }
 
 .gesturesScrim {
