@@ -109,6 +109,7 @@ export default function AppShell() {
               onAddDuplicate={progressActions.addDuplicate}
               onDecreaseDuplicate={progressActions.decreaseDuplicate}
               onRemoveDuplicate={progressActions.removeDuplicate}
+              onMergeDuplicatesFromParsed={progressActions.mergeDuplicatesFromParsed}
             />
           ) : null}
         </div>

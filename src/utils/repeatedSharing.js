@@ -188,7 +188,8 @@ export function formatRepeatedShareText(duplicates, albumStickers) {
 
 function looksLikeAnySectionOrTeamEmoji(str) {
   if (!str) return false;
-  if (str.includes(SECTION_EMOJIS.FWC) || str.includes(SECTION_EMOJIS.PANINI)) return true;
+  if (str.includes(SECTION_EMOJIS.FWC) || str.includes("🏆") || str.includes("📜")) return true;
+  if (str.includes(SECTION_EMOJIS.PANINI)) return true;
   return Object.values(TEAM_FLAG_EMOJIS).some((e) => str.includes(e));
 }
 
@@ -215,7 +216,7 @@ function splitPrefixWord(s) {
 
 function inferFromEmojiOnly(s) {
   const t = s.trim();
-  if (t === SECTION_EMOJIS.FWC || t.startsWith(SECTION_EMOJIS.FWC)) {
+  if (t === SECTION_EMOJIS.FWC || t.startsWith(SECTION_EMOJIS.FWC) || t === "🏆" || t === "📜") {
     return { section: "fwc" };
   }
   if (t.includes(SECTION_EMOJIS.PANINI) || /^🅿️/.test(t)) {
@@ -264,9 +265,10 @@ function classifyPrefix(left, line, warnings) {
       return { section: "panini" };
     }
     if (w === "FWC") {
-      if (rest && hasUnexpectedEmoji(rest, SECTION_EMOJIS.FWC)) {
+      const restOnlyFwcDecor = rest && /^[\s🌎🏆📜]*$/u.test(rest);
+      if (rest && !restOnlyFwcDecor && hasUnexpectedEmoji(rest, SECTION_EMOJIS.FWC)) {
         warnings.push({
-          message: "El emoji junto a FWC no coincide con 🌎.",
+          message: "El emoji junto a FWC no coincide con el esperado.",
           sourceLine: line,
         });
       }
@@ -379,7 +381,63 @@ function isShareMessageNoiseLine(line) {
   if (!t) return false;
   if (/^FIGURITAPP\b/i.test(t)) return true;
   if (/^Guardá tus figuritas\b/i.test(t)) return true;
-  if (/^Descargá\b/i.test(t) || /^Download\b/i.test(t)) return true;
+  if (/^Descargá\b/i.test(t) || /^Download\b/i.test(t) || /^Download the app\b/i.test(t)) return true;
+  if (/^Figuritas App\b/i.test(t)) return true;
+  if (/^Usa Mex Can\b/i.test(t)) return true;
+  return false;
+}
+
+const SWAPS_REPEATED_HEADING_KEYS = new Set([
+  "swaps",
+  "repes",
+  "repetidas",
+  "mis repetidas",
+  "duplicates",
+  "repeated",
+]);
+
+/** Encabezados de “faltantes” u otras secciones: dejan de interpretarse líneas como repetidas. */
+const AFTER_SWAPS_STOP_HEADING_KEYS = new Set([
+  "i need",
+  "need",
+  "needs",
+  "missing",
+  "faltan",
+  "faltantes",
+  "me faltan",
+  "busco",
+  "necesito",
+  "no tengo",
+  "nola",
+  "tengo",
+  "conseguidas",
+]);
+
+function normRepeatedHeadingKey(line) {
+  let s = String(line || "").trim();
+  if (/^figuritas\s*:?\s*$/i.test(s)) return "figuritas";
+  if (s.endsWith(":")) s = s.slice(0, -1).trim();
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\u0300/g, "");
+}
+
+function isSwapsRepeatedSectionHeading(line) {
+  const key = normRepeatedHeadingKey(line);
+  return SWAPS_REPEATED_HEADING_KEYS.has(key);
+}
+
+function isStopAfterSwapsRepeatedHeading(line) {
+  const key = normRepeatedHeadingKey(line);
+  if (key === "figuritas") return true;
+  return AFTER_SWAPS_STOP_HEADING_KEYS.has(key);
+}
+
+function textHasSwapsRepeatedHeading(lines) {
+  for (const raw of lines) {
+    if (isSwapsRepeatedSectionHeading(String(raw || "").trim())) return true;
+  }
   return false;
 }
 
@@ -443,12 +501,27 @@ function parseHumanRepeatedLines(text, albumStickers) {
   const unknown = [];
   const warnings = [];
   const lines = text.split(/\r?\n/);
+  const useSwapsSectionGate = textHasSwapsRepeatedHeading(lines);
+  let swapsActive = !useSwapsSectionGate;
 
   for (const raw of lines) {
     const line = raw.trim();
     if (!line) continue;
-    if (/^https?:\/\//i.test(line)) continue;
+    if (/^https?:\/\//i.test(line) || /^www\./i.test(line)) continue;
     if (isShareMessageNoiseLine(line)) continue;
+
+    if (useSwapsSectionGate) {
+      if (isSwapsRepeatedSectionHeading(line)) {
+        swapsActive = true;
+        continue;
+      }
+      if (swapsActive && isStopAfterSwapsRepeatedHeading(line)) {
+        swapsActive = false;
+        continue;
+      }
+      if (!swapsActive) continue;
+    }
+
     if (tryStandalonePanini(line, stickers, parsed, unknown)) continue;
     if (!line.includes(":")) continue;
     parseHumanListLine(line, stickers, parsed, unknown, warnings);
@@ -534,6 +607,75 @@ function enrichStickerComparisonRow(sticker, count) {
     isSpecial: !!sticker.isSpecial,
     category: sticker.category,
     sticker,
+  };
+}
+
+/**
+ * Une entradas parseadas (mismo código en varias líneas) sumando cantidades.
+ * @param {{ code: string, count: number, sourceLine?: string }[]} parsedList
+ * @returns {{ code: string, count: number }[]}
+ */
+export function mergeParsedRepeatedStickerCounts(parsedList) {
+  const map = new Map();
+  for (const p of parsedList || []) {
+    if (!p || typeof p !== "object") continue;
+    const code = normalizeStickerCode(p.code);
+    const cnt = Number(p.count);
+    if (!code || !Number.isInteger(cnt) || cnt < 1) continue;
+    map.set(code, (map.get(code) || 0) + cnt);
+  }
+  return [...map.entries()]
+    .map(([code, count]) => ({ code, count }))
+    .sort((a, b) => a.code.localeCompare(b.code));
+}
+
+/**
+ * Vista previa para importar repetidas desde texto (p. ej. lista Swaps de WhatsApp).
+ * @param {{ parsed: { code: string, count: number }[], unknown?: { value: string, reason: string }[], warnings?: object[] }} parseResult
+ * @param {{ duplicates?: object, owned?: object }} progress
+ * @param {object[]} albumStickers
+ */
+export function previewRepeatedStickerWhatsAppImport(parseResult, progress, albumStickers) {
+  const stickers = Array.isArray(albumStickers) ? albumStickers : [];
+  const merged = mergeParsedRepeatedStickerCounts(parseResult?.parsed);
+  const currentDup =
+    progress?.duplicates && typeof progress.duplicates === "object" && !Array.isArray(progress.duplicates)
+      ? progress.duplicates
+      : {};
+
+  const detected = [];
+  for (const { code, count } of merged) {
+    const sticker = getStickerByCode(code, stickers);
+    if (!sticker) continue;
+    const base = enrichStickerComparisonRow(sticker, count);
+    detected.push({
+      ...base,
+      countToImport: count,
+      existingDuplicateCount: Number(currentDup[code]) || 0,
+    });
+  }
+
+  const notRecognized = (parseResult?.unknown || []).map((u) => ({
+    value: u.value,
+    reason: u.reason,
+  }));
+
+  const warnings = [];
+  for (const w of parseResult?.warnings || []) {
+    if (!w || typeof w !== "object") continue;
+    const reason = w.message || w.reason;
+    if (reason) warnings.push({ reason, sourceLine: w.sourceLine });
+  }
+
+  return {
+    detected,
+    notRecognized,
+    warnings,
+    summary: {
+      detectedCount: detected.length,
+      notRecognizedCount: notRecognized.length,
+      warningsCount: warnings.length,
+    },
   };
 }
 

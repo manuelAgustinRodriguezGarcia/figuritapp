@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { LEGACY_PANINI_STICKER_CODE, STORAGE_KEY } from "@/data/albumConfig";
+import { normalizeStickerCode } from "@/utils/stickerCode";
 
 const FWC00_CODE = "FWC00";
 
@@ -145,6 +146,24 @@ export function useAlbumProgress() {
     setProgress(() => withTimestamp(safe));
   }, [setProgress]);
 
+  /** Suma repetidas e marca como conseguidas; no reemplaza el progreso completo. */
+  const mergeDuplicatesFromParsed = useCallback((mergedEntries) => {
+    if (!Array.isArray(mergedEntries) || mergedEntries.length === 0) return;
+    setProgress((prev) => {
+      const owned = { ...prev.owned };
+      const duplicates = { ...prev.duplicates };
+      for (const row of mergedEntries) {
+        if (!row || typeof row !== "object") continue;
+        const code = normalizeStickerCode(row.code);
+        const add = Number(row.count);
+        if (!code || !Number.isInteger(add) || add < 1) continue;
+        owned[code] = true;
+        duplicates[code] = (Number(duplicates[code]) || 0) + add;
+      }
+      return withTimestamp({ ...prev, owned, duplicates });
+    });
+  }, [setProgress]);
+
   const exportSnapshot = useCallback(() => ({
     owned: { ...progress.owned },
     duplicates: { ...progress.duplicates },
@@ -159,8 +178,9 @@ export function useAlbumProgress() {
     removeDuplicate,
     resetProgress,
     replaceProgress,
+    mergeDuplicatesFromParsed,
     exportSnapshot,
-  }), [setOwned, toggleOwned, addDuplicate, decreaseDuplicate, removeDuplicate, resetProgress, replaceProgress, exportSnapshot]);
+  }), [setOwned, toggleOwned, addDuplicate, decreaseDuplicate, removeDuplicate, resetProgress, replaceProgress, mergeDuplicatesFromParsed, exportSnapshot]);
 
   return { progress, hydrated, ...actions };
 }

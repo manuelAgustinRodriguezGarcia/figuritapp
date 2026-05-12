@@ -1,12 +1,17 @@
 "use client";
 
-import { useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
 import SectionScrollFab from "@/components/SectionScrollFab/SectionScrollFab";
 import ShareRepeatedPanel from "@/components/ShareRepeatedPanel/ShareRepeatedPanel";
 import CompareRepeatedPanel from "@/components/CompareRepeatedPanel/CompareRepeatedPanel";
+import {
+  mergeParsedRepeatedStickerCounts,
+  parseRepeatedShareText,
+  previewRepeatedStickerWhatsAppImport,
+} from "@/utils/repeatedSharing";
 import { normalizeStickerCode, getStickerByCode } from "@/utils/stickerCode";
 import styles from "./RepeatedSection.module.scss";
 
@@ -19,6 +24,41 @@ function describeStickerSection(sticker) {
     default:
       return "";
   }
+}
+
+function ImportPreviewRow({ row }) {
+  const { sticker, displayCode, playerName, flagEmoji, countToImport, existingDuplicateCount } = row;
+  const isTeam = sticker.category === "team";
+  const sectionLabel =
+    sticker.category === "fwc" ? sticker.title || "FWC" : describeStickerSection(sticker);
+  const sectionLine = `${sectionLabel}${flagEmoji ? ` ${flagEmoji}` : ""}`;
+
+  return (
+    <li className={styles.importPreviewItem}>
+      <div className={styles.importPreviewHead}>
+        {isTeam ? (
+          <FlagIcon flagCode={sticker.flagCode} label={sticker.teamName} size="sm" decorative />
+        ) : sticker.category === "fwc" ? (
+          <FwcStickerVisual sticker={sticker} variant="list" isOwned />
+        ) : (
+          <span className={styles.importPreviewGlyph} aria-hidden>
+            ◆
+          </span>
+        )}
+        <div className={styles.importPreviewBody}>
+          <span className={styles.importPreviewCode}>{displayCode}</span>
+          {playerName ? <span className={styles.importPreviewName}>{playerName}</span> : null}
+          <span className={styles.importPreviewMeta}>{sectionLine}</span>
+          <span className={styles.importPreviewCounts}>
+            A importar: ×{countToImport}
+            {existingDuplicateCount > 0 ? (
+              <span className={styles.importPreviewHad}> · Ya tenías: ×{existingDuplicateCount}</span>
+            ) : null}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
 }
 
 const SUGGESTION_LIMIT = 3;
@@ -36,15 +76,48 @@ export default function RepeatedSection({
   hydrated,
   onAddDuplicate,
   onDecreaseDuplicate,
+  onMergeDuplicatesFromParsed,
 }) {
   const inputId = useId();
   const listboxId = useId();
+  const importDialogTitleId = useId();
+  const importTextareaId = useId();
   const inputRef = useRef(null);
   const [rawCode, setRawCode] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [suggestDismissed, setSuggestDismissed] = useState(false);
 
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importParseResult, setImportParseResult] = useState(null);
+  const [repesImportToast, setRepesImportToast] = useState(null);
+
   const stickers = useMemo(() => album?.stickers || [], [album]);
+
+  const importPreview = useMemo(() => {
+    if (!importParseResult || !stickers.length) return null;
+    return previewRepeatedStickerWhatsAppImport(importParseResult, progress, stickers);
+  }, [importParseResult, progress, stickers]);
+
+  const importMerged = useMemo(() => {
+    if (!importParseResult?.parsed?.length) return [];
+    return mergeParsedRepeatedStickerCounts(importParseResult.parsed);
+  }, [importParseResult]);
+
+  const closeImportModal = useCallback(() => {
+    setImportModalOpen(false);
+    setImportText("");
+    setImportParseResult(null);
+  }, []);
+
+  useEffect(() => {
+    if (!importModalOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") closeImportModal();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [importModalOpen, closeImportModal]);
 
   const repeatedItems = useMemo(() => {
     if (!album) return [];
@@ -124,6 +197,36 @@ export default function RepeatedSection({
     if (feedback) setFeedback(null);
     focusInputSoon();
   }
+
+  const handleImportRepes = useCallback(() => {
+    setRepesImportToast(null);
+    setImportParseResult(null);
+    setImportText("");
+    setImportModalOpen(true);
+  }, []);
+
+  const handleAnalyzeImport = useCallback(() => {
+    if (!stickers.length || !importText.trim()) return;
+    setImportParseResult(parseRepeatedShareText(importText, stickers));
+  }, [importText, stickers]);
+
+  const handleApplyImport = useCallback(() => {
+    if (!hydrated || !onMergeDuplicatesFromParsed || importMerged.length === 0) return;
+    onMergeDuplicatesFromParsed(importMerged);
+    closeImportModal();
+    setRepesImportToast("Repetidas importadas correctamente.");
+  }, [hydrated, onMergeDuplicatesFromParsed, importMerged, closeImportModal]);
+
+  const handleClearImport = useCallback(() => {
+    setImportText("");
+    setImportParseResult(null);
+  }, []);
+
+  useEffect(() => {
+    if (!repesImportToast) return undefined;
+    const t = window.setTimeout(() => setRepesImportToast(null), 4200);
+    return () => window.clearTimeout(t);
+  }, [repesImportToast]);
 
   function handleComboBlur(event) {
     const { relatedTarget, currentTarget } = event;
@@ -211,6 +314,11 @@ export default function RepeatedSection({
               Agregar repetida
             </button>
           </div>
+          <div className={styles.importRepesRow}>
+            <button type="button" className={styles.importRepesBtn} onClick={handleImportRepes}>
+              Importar repetidas
+            </button>
+          </div>
           {feedback ? (
             <p
               id={`${inputId}-feedback`}
@@ -232,6 +340,12 @@ export default function RepeatedSection({
           </div>
         </div>
       </form>
+
+      {repesImportToast ? (
+        <p className={styles.importSuccessToast} role="status" aria-live="polite">
+          {repesImportToast}
+        </p>
+      ) : null}
 
       <div
         id="repes-compartir-recibir"
@@ -311,6 +425,123 @@ export default function RepeatedSection({
           })}
         </ul>
       )}
+
+      {importModalOpen ? (
+        <div
+          className={styles.importOverlay}
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) closeImportModal();
+          }}
+        >
+          <div className={styles.importDialog} role="dialog" aria-modal="true" aria-labelledby={importDialogTitleId}>
+            <div className={styles.importDialogHeader}>
+              <h2 id={importDialogTitleId} className={styles.importDialogTitle}>
+                Importar repetidas
+              </h2>
+              <button type="button" className={styles.importCloseBtn} onClick={closeImportModal}>
+                Cerrar
+              </button>
+            </div>
+            <div className={styles.importDialogBody}>
+              <p className={styles.importIntro}>
+                Pegá una lista de WhatsApp con encabezado <strong>Swaps</strong>, <strong>Repes</strong>,{" "}
+                <strong>Repetidas</strong> u otro título de intercambio. Solo se importa lo que aparece debajo de ese
+                título.
+              </p>
+              <label className={styles.importLabel} htmlFor={importTextareaId}>
+                Texto pegado
+              </label>
+              <textarea
+                id={importTextareaId}
+                className={styles.importTextarea}
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                rows={10}
+                spellCheck={false}
+                autoComplete="off"
+              />
+              <div className={styles.importActions}>
+                <button
+                  type="button"
+                  className={styles.importBtnPrimary}
+                  onClick={handleAnalyzeImport}
+                  disabled={!importText.trim() || !stickers.length}
+                >
+                  Analizar lista
+                </button>
+                <button type="button" className={styles.importBtnSecondary} onClick={handleClearImport}>
+                  Limpiar
+                </button>
+              </div>
+
+              {importParseResult && importPreview ? (
+                <>
+                  {importPreview.summary.detectedCount === 0 ? (
+                    <p className={styles.importNotice} role="status">
+                      No encontramos repetidas válidas en el texto. Revisá que haya un encabezado como Swaps y líneas
+                      con formato EQUIPO: números.
+                    </p>
+                  ) : null}
+
+                  {importPreview.detected.length > 0 ? (
+                    <section className={styles.importPreviewSection} aria-labelledby={`${importDialogTitleId}-det`}>
+                      <h3 id={`${importDialogTitleId}-det`} className={styles.importPreviewHeading}>
+                        Repetidas detectadas
+                      </h3>
+                      <ul className={styles.importPreviewList}>
+                        {importPreview.detected.map((row) => (
+                          <ImportPreviewRow key={row.code} row={row} />
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  {importPreview.notRecognized.length > 0 ? (
+                    <section className={styles.importPreviewSection} aria-labelledby={`${importDialogTitleId}-unk`}>
+                      <h3 id={`${importDialogTitleId}-unk`} className={styles.importPreviewHeading}>
+                        No reconocidas
+                      </h3>
+                      <ul className={styles.importUnknownList}>
+                        {importPreview.notRecognized.map((item, i) => (
+                          <li key={`unk-${i}`} className={styles.importUnknownItem}>
+                            <span className={styles.importUnknownVal}>{item.value}</span>
+                            <span className={styles.importUnknownReason}>{item.reason}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  {importPreview.warnings.length > 0 ? (
+                    <section className={styles.importPreviewSection} aria-labelledby={`${importDialogTitleId}-warn`}>
+                      <h3 id={`${importDialogTitleId}-warn`} className={styles.importPreviewHeading}>
+                        Advertencias
+                      </h3>
+                      <ul className={styles.importWarnList}>
+                        {importPreview.warnings.map((w, i) => (
+                          <li key={`w-${i}`} className={styles.importWarnItem}>
+                            {w.reason}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    className={styles.importBtnPrimary}
+                    onClick={handleApplyImport}
+                    disabled={!hydrated || importMerged.length === 0}
+                  >
+                    Aplicar importación
+                  </button>
+                </>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <SectionScrollFab
         enabled={Boolean(album)}

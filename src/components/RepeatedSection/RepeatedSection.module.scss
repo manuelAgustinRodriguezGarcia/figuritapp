@@ -197,6 +197,29 @@
   flex: 0 0 auto;
 }
 
+.importRepesRow {
+  width: 100%;
+}
+
+.importRepesBtn {
+  @include button-reset;
+  @include pill-secondary;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 $space-xl;
+  font-size: 14px;
+  font-weight: 500;
+
+  @include breakpoint-up(sm) {
+    width: auto;
+    min-width: 200px;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
 .feedback {
   margin: 0;
   font-size: 13px;
@@ -446,3 +469,291 @@
   border: 1px solid var(--color-hairline);
   min-height: 100%;
 }
+
+.importSuccessToast {
+  margin: 0;
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-success);
+  background-color: rgba(0, 125, 72, 0.1);
+  border: 1px solid rgba(0, 125, 72, 0.25);
+}
+
+.importOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+
+  @include breakpoint-up(sm) {
+    align-items: center;
+    padding: $space-lg;
+  }
+}
+
+.importDialog {
+  width: 100%;
+  max-width: 560px;
+  max-height: min(92vh, 900px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-canvas);
+  border-radius: $radius-md $radius-md 0 0;
+  border: 1px solid var(--color-hairline);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
+
+  @include breakpoint-up(sm) {
+    border-radius: $radius-md;
+    max-height: min(90vh, 900px);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+  }
+}
+
+.importDialogHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-md;
+  padding: $space-lg $space-lg $space-sm;
+  border-bottom: 1px solid var(--color-hairline);
+  flex-shrink: 0;
+}
+
+.importDialogTitle {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: clamp(20px, 4vw, 26px);
+  font-weight: 500;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.importCloseBtn {
+  @include button-reset;
+  @include pill-secondary;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.importDialogBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: $space-lg;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.importIntro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+}
+
+.importLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.importTextarea {
+  width: 100%;
+  min-height: 140px;
+  padding: $space-md;
+  border-radius: $radius-sm;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 14px;
+  line-height: 1.45;
+  resize: vertical;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+  }
+}
+
+.importActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+}
+
+.importBtnPrimary {
+  @include button-reset;
+  @include pill-primary;
+  flex: 1 1 auto;
+  min-width: 140px;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.importBtnSecondary {
+  @include button-reset;
+  @include pill-secondary;
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+.importNotice {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+  padding: $space-sm $space-md;
+  border-radius: $radius-sm;
+  background: var(--color-soft-cloud);
+  border: 1px solid var(--color-hairline);
+}
+
+.importPreviewSection {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  padding: $space-md;
+  border-radius: $radius-md;
+  background: var(--color-soft-cloud);
+  border: 1px solid var(--color-hairline);
+}
+
+.importPreviewHeading {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.importPreviewList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.importPreviewItem {
+  margin: 0;
+  padding: $space-xs 0;
+  border-bottom: 1px solid var(--color-hairline);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.importPreviewHead {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-sm;
+}
+
+.importPreviewGlyph {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-mute);
+  flex-shrink: 0;
+}
+
+.importPreviewBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.importPreviewCode {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-ink);
+}
+
+.importPreviewName {
+  font-size: 12px;
+  color: var(--color-charcoal);
+}
+
+.importPreviewMeta {
+  font-size: 12px;
+  color: var(--color-mute);
+}
+
+.importPreviewCounts {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-top: 2px;
+}
+
+.importPreviewHad {
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+.importUnknownList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.importUnknownItem {
+  padding: $space-sm $space-md;
+  border-radius: $radius-sm;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.importUnknownVal {
+  font-size: 12px;
+  word-break: break-word;
+  font-family: var(--font-family-mono, ui-monospace, monospace);
+}
+
+.importUnknownReason {
+  font-size: 12px;
+  color: var(--color-sale-deep);
+}
+
+.importWarnList {
+  margin: 0;
+  padding-left: $space-md;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-charcoal);
+}
+
+.importWarnItem {
+  margin-bottom: $space-xs;
+}
+
