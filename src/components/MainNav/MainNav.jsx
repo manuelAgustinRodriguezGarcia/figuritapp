@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { BookOpen, GalleryHorizontalEnd, House, Info } from "lucide-react";
 import styles from "./MainNav.module.scss";
 
 const TABS = [
-  { id: "home", label: "Inicio", Icon: House },
-  { id: "album", label: "Mi álbum", Icon: BookOpen },
-  { id: "repeated", label: "Repes", Icon: GalleryHorizontalEnd },
+  { id: "home", label: "Inicio", Icon: House, href: "/" },
+  { id: "album", label: "Mi Álbum", Icon: BookOpen, href: "/album" },
+  { id: "repeated", label: "Repes", Icon: GalleryHorizontalEnd, href: "/repes" },
 ];
 
-function TabList({ active, onChange, variant }) {
+function TabList({ active, variant, onBeforeNavigate }) {
   const listRef = useRef(null);
   const buttonRefs = useRef([]);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
@@ -57,14 +58,15 @@ function TabList({ active, onChange, variant }) {
     const iconSize = variant === "bottom" ? 22 : 16;
     return (
       <li key={tab.id} className={styles.tabItem}>
-        <button
+        <Link
           ref={(el) => {
             if (variant === "top") buttonRefs.current[index] = el;
           }}
-          type="button"
-          className={`${tabClass} ${isActive ? activeClass : ""}`}
-          onClick={() => onChange?.(tab.id)}
+          href={tab.href}
+          prefetch
+          className={`${styles.tabNavLink} ${tabClass} ${isActive ? activeClass : ""}`}
           aria-current={isActive ? "page" : undefined}
+          onClick={() => onBeforeNavigate?.()}
         >
           <tab.Icon
             size={iconSize}
@@ -73,7 +75,7 @@ function TabList({ active, onChange, variant }) {
             className={styles.tabIcon}
           />
           <span className={styles.tabLabel}>{tab.label}</span>
-        </button>
+        </Link>
       </li>
     );
   });
@@ -151,7 +153,7 @@ function AlbumGesturesSheet({ onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="album-gestures-title" className={styles.gesturesTitle}>
-          Gestos en Mi álbum
+          Gestos en Mi Álbum
         </h2>
         <ul className={styles.gesturesList}>
           <li>
@@ -175,30 +177,18 @@ function AlbumGesturesSheet({ onClose }) {
   );
 }
 
-export default function MainNav({ active, onChange }) {
+export default function MainNav({ active }) {
   const [gesturesOpen, setGesturesOpen] = useState(false);
 
-  const handleTabChange = useCallback(
-    (id) => {
-      setGesturesOpen(false);
-      onChange?.(id);
-    },
-    [onChange],
-  );
+  const handleBeforeTabNavigate = useCallback(() => {
+    setGesturesOpen(false);
+  }, []);
 
   return (
     <>
       <header className={styles.nav} role="banner">
         <div className={styles.inner}>
-          <a
-            href="#"
-            className={styles.brand}
-            aria-label="FIGURITAPP - ir al inicio"
-            onClick={(event) => {
-              event.preventDefault();
-              onChange?.("home");
-            }}
-          >
+          <Link href="/" className={styles.brand} aria-label="FIGURITAPP - ir al inicio">
             <img
               src="/logo.png"
               alt=""
@@ -210,14 +200,14 @@ export default function MainNav({ active, onChange }) {
               FIGURIT<span className={styles.brandAccent}>APP</span>
             </span>
             <span className={styles.brandSub}>Mundial 2026</span>
-          </a>
+          </Link>
 
           <div className={styles.topCluster}>
             {active === "album" ? (
               <button
                 type="button"
                 className={styles.albumGesturesBtn}
-                aria-label="Cómo funcionan los gestos en Mi álbum"
+                aria-label="Cómo funcionan los gestos en Mi Álbum"
                 aria-expanded={gesturesOpen}
                 onClick={() => setGesturesOpen(true)}
               >
@@ -225,7 +215,7 @@ export default function MainNav({ active, onChange }) {
               </button>
             ) : null}
             <nav className={styles.tabsTop} aria-label="Secciones principales">
-              <TabList active={active} onChange={handleTabChange} variant="top" />
+              <TabList active={active} variant="top" onBeforeNavigate={() => setGesturesOpen(false)} />
             </nav>
           </div>
         </div>
@@ -234,7 +224,7 @@ export default function MainNav({ active, onChange }) {
       {gesturesOpen ? <AlbumGesturesSheet onClose={() => setGesturesOpen(false)} /> : null}
 
       <nav className={styles.bottomNav} aria-label="Secciones principales (móvil)">
-        <TabList active={active} onChange={handleTabChange} variant="bottom" />
+        <TabList active={active} variant="bottom" onBeforeNavigate={handleBeforeTabNavigate} />
       </nav>
     </>
   );

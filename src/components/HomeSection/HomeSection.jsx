@@ -4,7 +4,7 @@ import { BookOpen, GalleryHorizontalEnd } from "lucide-react";
 import ProgressSummary from "@/components/ProgressSummary/ProgressSummary";
 import styles from "./HomeSection.module.scss";
 
-export default function HomeSection({ stats, hydrated, onNavigate }) {
+export default function HomeSection({ album, stats, progress, hydrated, onNavigate }) {
   return (
     <section className={styles.section} aria-labelledby="home-heading">
       <div className={styles.hero}>
@@ -35,7 +35,7 @@ export default function HomeSection({ stats, hydrated, onNavigate }) {
         </div>
       </div>
 
-      <ProgressSummary stats={stats} hydrated={hydrated} />
+      <ProgressSummary album={album} stats={stats} progress={progress} hydrated={hydrated} />
 
       <div className={styles.quickGrid}>
         <article className={`${styles.quickCard} ${styles.quickCardAlbum}`}>

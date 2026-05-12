@@ -650,3 +650,221 @@
   color: var(--color-charcoal);
   line-height: 1.35;
 }
+
+/* --- Descontar repes (lista “Figus que me sirven”) --- */
+
+.tradeSummary {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.riskBanner {
+  padding: $space-md;
+  border-radius: $radius-md;
+  border: 1px solid rgba(211, 0, 5, 0.35);
+  background-color: rgba(211, 0, 5, 0.06);
+}
+
+.riskBannerText {
+  margin: 0 0 $space-sm;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.riskAckBtn {
+  @include button-reset;
+  @include pill-secondary;
+  width: 100%;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.riskAckDone {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.tradePreviewSection {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.tradePreviewHeading {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.tradePreviewList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.tradeRow {
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  border: 1px solid var(--color-hairline);
+  background-color: var(--color-soft-cloud);
+}
+
+.tradeRowMissing {
+  border-color: rgba(211, 0, 5, 0.45);
+  background-color: rgba(211, 0, 5, 0.07);
+}
+
+.tradeRowShort {
+  border-color: rgba(180, 100, 0, 0.45);
+  background-color: rgba(255, 180, 0, 0.08);
+}
+
+.tradeRowHead {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-md;
+}
+
+.tradeRowBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tradeRowCode {
+  font-family: var(--font-family-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.tradeRowName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.tradeRowSection {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.tradeRowCounts {
+  margin-top: $space-xs;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-charcoal);
+  line-height: 1.35;
+}
+
+.tradeRowDeduction {
+  color: var(--color-ink);
+}
+
+.tradeRowStatus {
+  display: block;
+  margin-top: $space-xs;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-sale-deep);
+}
+
+.tradeRowShort .tradeRowStatus {
+  color: #8a5a00;
+}
+
+.tradeRowGlyph {
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.55;
+}
+
+.tradeUnknownSection {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.tradeUnknownList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.tradeUnknownItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: $space-sm $space-md;
+  border-radius: $radius-sm;
+  background-color: var(--color-soft-cloud);
+  border: 1px solid var(--color-hairline);
+}
+
+.tradeUnknownVal {
+  font-family: var(--font-family-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink);
+  word-break: break-all;
+}
+
+.tradeUnknownReason {
+  font-size: 12px;
+  color: var(--color-charcoal);
+}
+
+.tradeConfirmRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: $space-sm;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.btnConfirmTrade {
+  @include button-reset;
+  @include pill-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  min-height: 44px;
+  padding: 0 $space-lg;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.btnConfirmTradeIcon {
+  flex-shrink: 0;
+}

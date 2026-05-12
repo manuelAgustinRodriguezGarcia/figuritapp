@@ -164,6 +164,30 @@ export function useAlbumProgress() {
     });
   }, [setProgress]);
 
+  /**
+   * Resta varias repes en un solo paso (p. ej. después de un intercambio).
+   * @param {{ code: string, count: number }[]} deductions — `count` = cuántas copias restar por código.
+   */
+  const applyDuplicateTradeDeductions = useCallback((deductions) => {
+    if (!Array.isArray(deductions) || deductions.length === 0) return;
+    setProgress((prev) => {
+      const duplicates = { ...prev.duplicates };
+      for (const row of deductions) {
+        if (!row || typeof row !== "object") continue;
+        const code = normalizeStickerCode(row.code);
+        const n = Number(row.count);
+        if (!code || !Number.isInteger(n) || n < 1) continue;
+        const current = Number(duplicates[code]) || 0;
+        if (current <= 0) continue;
+        const take = Math.min(n, current);
+        const next = current - take;
+        if (next <= 0) delete duplicates[code];
+        else duplicates[code] = next;
+      }
+      return withTimestamp({ ...prev, duplicates });
+    });
+  }, [setProgress]);
+
   const exportSnapshot = useCallback(() => ({
     owned: { ...progress.owned },
     duplicates: { ...progress.duplicates },
@@ -179,8 +203,20 @@ export function useAlbumProgress() {
     resetProgress,
     replaceProgress,
     mergeDuplicatesFromParsed,
+    applyDuplicateTradeDeductions,
     exportSnapshot,
-  }), [setOwned, toggleOwned, addDuplicate, decreaseDuplicate, removeDuplicate, resetProgress, replaceProgress, mergeDuplicatesFromParsed, exportSnapshot]);
+  }), [
+    setOwned,
+    toggleOwned,
+    addDuplicate,
+    decreaseDuplicate,
+    removeDuplicate,
+    resetProgress,
+    replaceProgress,
+    mergeDuplicatesFromParsed,
+    applyDuplicateTradeDeductions,
+    exportSnapshot,
+  ]);
 
   return { progress, hydrated, ...actions };
 }

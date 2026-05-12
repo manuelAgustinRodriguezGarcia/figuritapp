@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { Download, Plus } from "lucide-react";
+import { Download, Eraser, Plus } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
@@ -78,6 +78,7 @@ export default function RepeatedSection({
   onAddDuplicate,
   onDecreaseDuplicate,
   onMergeDuplicatesFromParsed,
+  onApplyTradeDeductions,
 }) {
   const inputId = useId();
   const listboxId = useId();
@@ -92,6 +93,7 @@ export default function RepeatedSection({
   const [importText, setImportText] = useState("");
   const [importParseResult, setImportParseResult] = useState(null);
   const [repesImportToast, setRepesImportToast] = useState(null);
+  const [compareReceiveKey, setCompareReceiveKey] = useState(0);
 
   const stickers = useMemo(() => album?.stickers || [], [album]);
 
@@ -353,17 +355,17 @@ export default function RepeatedSection({
       <div
         id="repes-compartir-recibir"
         className={styles.tradeZone}
-        aria-label="Compartir y recibir listas de repes"
+        aria-label="Cambiar repes: compartir y recibir listas"
       >
         <div className={styles.tradeHeader}>
           <p className={styles.tradeEyebrow}>Intercambio</p>
-          <h3 className={styles.tradeTitle}>Compartir y recibir repes</h3>
+          <h3 className={styles.tradeTitle}>Cambiar repes</h3>
           <p className={styles.tradeSubtitle}>
-            <span className={styles.tradeLead}>Exportar</span> arma el texto FIGURITAPP con las mismas
-            repes que cargaste arriba (ideal para WhatsApp).{" "}
-            <span className={styles.tradeLead}>Recibir</span> analiza la lista de otra persona y te
-            muestra cuáles te sirven según lo que te falta en el álbum. Nada se guarda en un servidor:
-            todo pasa en tu dispositivo.
+            <span className={styles.tradeLead}>Compartir mis repes</span> arma el texto FIGURITAPP con lo que cargaste
+            arriba (ideal para WhatsApp).{" "}
+            <span className={styles.tradeLead}>Recibir repes de otro</span> te permite pegar la lista de figus que le
+            sirven a tu amigo y descontarlas de tus repetidas. Nada se guarda en un servidor: todo pasa en tu
+            dispositivo.
           </p>
         </div>
         <div className={styles.tradeGrid}>
@@ -371,8 +373,24 @@ export default function RepeatedSection({
             <ShareRepeatedPanel duplicates={progress?.duplicates} album={album} />
           </div>
           <div className={styles.tradeCard}>
-            <CompareRepeatedPanel album={album} progress={progress} />
+            <CompareRepeatedPanel
+              key={compareReceiveKey}
+              album={album}
+              progress={progress}
+              hydrated={hydrated}
+              onApplyTradeDeductions={onApplyTradeDeductions}
+            />
           </div>
+        </div>
+        <div className={styles.tradeFooterActions}>
+          <button
+            type="button"
+            className={styles.clearSwappedRepesBtn}
+            onClick={() => setCompareReceiveKey((k) => k + 1)}
+          >
+            <Eraser size={18} strokeWidth={2} aria-hidden className={styles.clearSwappedRepesIcon} />
+            Borrar repes cambiadas
+          </button>
         </div>
       </div>
 

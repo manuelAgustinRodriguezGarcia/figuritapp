@@ -242,6 +242,11 @@
   z-index: 1;
 }
 
+.tabNavLink {
+  text-decoration: none;
+  color: inherit;
+}
+
 // Top tab — horizontal pill: icon next to label.
 .tab {
   @include button-reset;

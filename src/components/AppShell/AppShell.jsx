@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import MainNav from "@/components/MainNav/MainNav";
 import HomeSection from "@/components/HomeSection/HomeSection";
 import AlbumSection from "@/components/AlbumSection/AlbumSection";
@@ -13,14 +14,29 @@ import styles from "./AppShell.module.scss";
 
 const SECTION_IDS = new Set(["home", "album", "repeated"]);
 
+const SECTION_HREF = {
+  home: "/",
+  album: "/album",
+  repeated: "/repes",
+};
+
+function sectionFromPathname(pathname) {
+  const p = pathname || "/";
+  if (p === "/album" || p.startsWith("/album/")) return "album";
+  if (p === "/repes" || p.startsWith("/repes/")) return "repeated";
+  return "home";
+}
+
 export default function AppShell() {
-  const [activeTab, setActiveTab] = useState("home");
+  const pathname = usePathname();
+  const router = useRouter();
+  const activeTab = useMemo(() => sectionFromPathname(pathname), [pathname]);
   const [album, setAlbum] = useState(null);
   const [albumError, setAlbumError] = useState(null);
   const [sectionTransitionOpen, setSectionTransitionOpen] = useState(false);
   const [sectionTransitionKey, setSectionTransitionKey] = useState(0);
   const sectionTransitionCloseTimer = useRef(null);
-  const prevActiveTabRef = useRef(activeTab);
+  const sectionBootRef = useRef(false);
   const { progress, hydrated, ...progressActions } = useAlbumProgress();
 
   useEffect(() => {
@@ -48,15 +64,22 @@ export default function AppShell() {
     return computeAlbumStats(album, progress);
   }, [album, progress]);
 
-  const handleTabChange = useCallback((id) => {
-    if (!SECTION_IDS.has(id)) return;
-    setActiveTab((prev) => (prev === id ? prev : id));
-  }, []);
+  const handleTabChange = useCallback(
+    (id) => {
+      if (!SECTION_IDS.has(id)) return;
+      const href = SECTION_HREF[id];
+      if (!href) return;
+      if (href === pathname || (href === "/" && (pathname === "/" || pathname === ""))) return;
+      router.push(href);
+    },
+    [router, pathname],
+  );
 
   useEffect(() => {
-    const prev = prevActiveTabRef.current;
-    if (prev === activeTab) return;
-    prevActiveTabRef.current = activeTab;
+    if (!sectionBootRef.current) {
+      sectionBootRef.current = true;
+      return;
+    }
     if (sectionTransitionCloseTimer.current != null) {
       clearTimeout(sectionTransitionCloseTimer.current);
       sectionTransitionCloseTimer.current = null;
@@ -95,7 +118,7 @@ export default function AppShell() {
   if (albumError) {
     return (
       <div className={styles.shell}>
-        <MainNav active={activeTab} onChange={handleTabChange} />
+        <MainNav active={activeTab} />
         <main className={styles.main}>
           <div className={styles.container}>
             <EmptyState
@@ -111,7 +134,7 @@ export default function AppShell() {
 
   return (
     <div className={styles.shell}>
-      <MainNav active={activeTab} onChange={handleTabChange} />
+      <MainNav active={activeTab} />
       <SectionTransitionOverlay open={sectionTransitionOpen} animationKey={sectionTransitionKey} />
       <main className={styles.main} aria-busy={sectionTransitionOpen}>
         <div className={styles.container}>
@@ -119,6 +142,7 @@ export default function AppShell() {
             <HomeSection
               album={album}
               stats={stats}
+              progress={progress}
               hydrated={hydrated}
               onNavigate={handleTabChange}
             />
@@ -146,6 +170,7 @@ export default function AppShell() {
               onDecreaseDuplicate={progressActions.decreaseDuplicate}
               onRemoveDuplicate={progressActions.removeDuplicate}
               onMergeDuplicatesFromParsed={progressActions.mergeDuplicatesFromParsed}
+              onApplyTradeDeductions={progressActions.applyDuplicateTradeDeductions}
             />
           ) : null}
         </div>

@@ -82,7 +82,7 @@ export default function ShareRepeatedPanel({ duplicates, album }) {
           <span className={styles.cardIcon} aria-hidden="true">
             <Users size={22} strokeWidth={2} />
           </span>
-          <h4 className={styles.cardTitle}>Compartir repes</h4>
+          <h4 className={styles.cardTitle}>Compartir mis repes</h4>
         </div>
         <div className={styles.bodyRow}>
           <p className={styles.hint}>
@@ -90,7 +90,7 @@ export default function ShareRepeatedPanel({ duplicates, album }) {
           </p>
           <button type="button" className={styles.actionBtn} onClick={handleShare}>
             <Users size={18} strokeWidth={2} aria-hidden className={styles.actionBtnIcon} />
-            Compartir repes
+            Compartir mis repes
           </button>
         </div>
         {manualFallback ? (

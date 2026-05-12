@@ -630,6 +630,59 @@ export function mergeParsedRepeatedStickerCounts(parsedList) {
 }
 
 /**
+ * Vista previa para descontar repes según un mensaje "Figus que me sirven" (u otra lista compatible).
+ * @param {{ parsed?: { code: string, count: number }[], unknown?: object[], warnings?: object[] }} parseResult
+ * @param {Record<string, unknown>} progressDuplicates
+ * @param {object[]} albumStickers
+ */
+export function buildRepesTradeAwayPreview(parseResult, progressDuplicates, albumStickers) {
+  const stickers = Array.isArray(albumStickers) ? albumStickers : [];
+  const dup =
+    progressDuplicates && typeof progressDuplicates === "object" && !Array.isArray(progressDuplicates)
+      ? progressDuplicates
+      : {};
+  const merged = mergeParsedRepeatedStickerCounts(parseResult?.parsed || []);
+  let totalEnLista = 0;
+  const rows = [];
+  for (const { code, count } of merged) {
+    const requested = Number(count);
+    if (!code || !Number.isInteger(requested) || requested < 1) continue;
+    totalEnLista += requested;
+    const sticker = getStickerByCode(code, stickers);
+    if (!sticker) continue;
+    const myDup = Math.max(0, Math.floor(Number(dup[code]) || 0));
+    const notInRepes = myDup === 0;
+    const insufficient = myDup > 0 && myDup < requested;
+    const subtractPlan = Math.min(requested, myDup);
+    const row = enrichStickerComparisonRow(sticker, requested);
+    rows.push({
+      code,
+      sticker,
+      requestedCount: requested,
+      myDuplicateCount: myDup,
+      subtractPlan,
+      notInRepes,
+      insufficient,
+      displayCode: row.displayCode,
+      playerName: row.playerName,
+      flagEmoji: row.flagEmoji,
+      teamName: row.teamName,
+      category: row.category,
+    });
+  }
+  rows.sort((a, b) => a.code.localeCompare(b.code));
+  const hasProblems = rows.some((r) => r.notInRepes || r.insufficient);
+  return {
+    merged,
+    rows,
+    totalEnLista,
+    hasProblems,
+    unknown: Array.isArray(parseResult?.unknown) ? parseResult.unknown : [],
+    warnings: Array.isArray(parseResult?.warnings) ? parseResult.warnings : [],
+  };
+}
+
+/**
  * Vista previa para importar repetidas desde texto (p. ej. lista Swaps de WhatsApp).
  * @param {{ parsed: { code: string, count: number }[], unknown?: { value: string, reason: string }[], warnings?: object[] }} parseResult
  * @param {{ duplicates?: object, owned?: object }} progress

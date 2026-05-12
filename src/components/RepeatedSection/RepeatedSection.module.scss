@@ -492,6 +492,40 @@
   min-height: 100%;
 }
 
+.tradeFooterActions {
+  display: flex;
+  justify-content: stretch;
+  width: 100%;
+}
+
+.clearSwappedRepesBtn {
+  @include button-reset;
+  @include pill-secondary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 $space-lg;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+  border-color: var(--color-hairline);
+
+  &:hover {
+    background-color: var(--color-soft-cloud);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.clearSwappedRepesIcon {
+  flex-shrink: 0;
+}
+
 .importSuccessToast {
   margin: 0;
   padding: $space-sm $space-md;
