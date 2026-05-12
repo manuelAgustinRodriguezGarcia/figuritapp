@@ -1,0 +1,86 @@
+@use "../../styles/variables" as *;
+
+$fill-duration: 0.55s;
+
+.root {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: min(60dvh, 520px);
+  padding: $space-xl;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-lg;
+  text-align: center;
+}
+
+.logo {
+  display: block;
+  height: clamp(56px, 14vw, 88px);
+  width: auto;
+  max-width: min(240px, 72vw);
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+}
+
+.wordmark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-display);
+  font-size: clamp(28px, 7vw, 48px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-ink);
+}
+
+.wordmarkGhost,
+.wordmarkFill {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.wordmarkGhost {
+  opacity: 0.22;
+  color: var(--color-ink);
+}
+
+.brandSuffix {
+  color: var(--fifa-26-gold);
+}
+
+.wordmarkGhost .brandSuffix {
+  opacity: 0.45;
+}
+
+.wordmarkFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  clip-path: inset(0 100% 0 0);
+  animation: wordmarkFillLtr $fill-duration cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes wordmarkFillLtr {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmarkFill {
+    animation: none;
+    clip-path: inset(0 0 0 0);
+  }
+}

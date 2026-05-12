@@ -8,6 +8,7 @@ import AlbumSection from "@/components/AlbumSection/AlbumSection";
 import RepeatedSection from "@/components/RepeatedSection/RepeatedSection";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import SectionTransitionOverlay from "@/components/SectionTransitionOverlay/SectionTransitionOverlay";
+import AppBootSplash from "@/components/AppBootSplash/AppBootSplash";
 import { useAlbumProgress } from "@/hooks/useAlbumProgress";
 import { computeAlbumStats } from "@/utils/albumStats";
 import styles from "./AppShell.module.scss";
@@ -132,50 +133,56 @@ export default function AppShell() {
     );
   }
 
+  const albumReady = Boolean(album);
+
   return (
     <div className={styles.shell}>
       <MainNav active={activeTab} />
-      <SectionTransitionOverlay open={sectionTransitionOpen} animationKey={sectionTransitionKey} />
-      <main className={styles.main} aria-busy={sectionTransitionOpen}>
-        <div className={styles.container}>
-          {activeTab === "home" ? (
-            <HomeSection
-              album={album}
-              stats={stats}
-              progress={progress}
-              hydrated={hydrated}
-              onNavigate={handleTabChange}
-            />
-          ) : null}
+      <SectionTransitionOverlay open={albumReady && sectionTransitionOpen} animationKey={sectionTransitionKey} />
+      <main className={styles.main} aria-busy={!albumReady || sectionTransitionOpen}>
+        {!albumReady ? (
+          <AppBootSplash />
+        ) : (
+          <div className={styles.container}>
+            {activeTab === "home" ? (
+              <HomeSection
+                album={album}
+                stats={stats}
+                progress={progress}
+                hydrated={hydrated}
+                onNavigate={handleTabChange}
+              />
+            ) : null}
 
-          {activeTab === "album" ? (
-            <AlbumSection
-              album={album}
-              progress={progress}
-              hydrated={hydrated}
-              onToggle={progressActions.toggleOwned}
-              onAddDuplicate={progressActions.addDuplicate}
-              onDecreaseDuplicate={progressActions.decreaseDuplicate}
-              onReplaceProgress={progressActions.replaceProgress}
-              onResetProgress={progressActions.resetProgress}
-            />
-          ) : null}
+            {activeTab === "album" ? (
+              <AlbumSection
+                album={album}
+                progress={progress}
+                hydrated={hydrated}
+                onToggle={progressActions.toggleOwned}
+                onAddDuplicate={progressActions.addDuplicate}
+                onDecreaseDuplicate={progressActions.decreaseDuplicate}
+                onReplaceProgress={progressActions.replaceProgress}
+                onResetProgress={progressActions.resetProgress}
+              />
+            ) : null}
 
-          {activeTab === "repeated" ? (
-            <RepeatedSection
-              album={album}
-              progress={progress}
-              hydrated={hydrated}
-              onAddDuplicate={progressActions.addDuplicate}
-              onDecreaseDuplicate={progressActions.decreaseDuplicate}
-              onRemoveDuplicate={progressActions.removeDuplicate}
-              onMergeDuplicatesFromParsed={progressActions.mergeDuplicatesFromParsed}
-              onApplyTradeDeductions={progressActions.applyDuplicateTradeDeductions}
-            />
-          ) : null}
-        </div>
+            {activeTab === "repeated" ? (
+              <RepeatedSection
+                album={album}
+                progress={progress}
+                hydrated={hydrated}
+                onAddDuplicate={progressActions.addDuplicate}
+                onDecreaseDuplicate={progressActions.decreaseDuplicate}
+                onRemoveDuplicate={progressActions.removeDuplicate}
+                onMergeDuplicatesFromParsed={progressActions.mergeDuplicatesFromParsed}
+                onApplyTradeDeductions={progressActions.applyDuplicateTradeDeductions}
+              />
+            ) : null}
+          </div>
+        )}
       </main>
-      {activeTab !== "album" ? (
+      {albumReady && activeTab !== "album" ? (
         <footer className={styles.footer}>
           <div className={styles.footerContainer}>
             <p className={styles.footerCopy}>

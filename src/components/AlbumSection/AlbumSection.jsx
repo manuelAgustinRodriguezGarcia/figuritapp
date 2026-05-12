@@ -105,21 +105,7 @@ export default function AlbumSection({
     });
   }, [filters.query]);
 
-  if (!album) {
-    return (
-      <section className={styles.section} aria-label="Mi álbum">
-        <header className={styles.header}>
-          <p className={styles.eyebrow}>Mi álbum</p>
-          <h2 className={styles.title}>Cargando álbum…</h2>
-        </header>
-        <EmptyState
-          title="Generando las 980 figuritas"
-          description="Estamos preparando el álbum completo del Mundial 2026."
-          icon="…"
-        />
-      </section>
-    );
-  }
+  if (!album) return null;
 
   return (
     <section className={styles.section} aria-label="Mi álbum">
