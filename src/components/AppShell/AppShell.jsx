@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import MainNav from "@/components/MainNav/MainNav";
 import HomeSection from "@/components/HomeSection/HomeSection";
 import AlbumSection from "@/components/AlbumSection/AlbumSection";
 import RepeatedSection from "@/components/RepeatedSection/RepeatedSection";
 import EmptyState from "@/components/EmptyState/EmptyState";
+import SectionTransitionOverlay from "@/components/SectionTransitionOverlay/SectionTransitionOverlay";
 import { useAlbumProgress } from "@/hooks/useAlbumProgress";
 import { computeAlbumStats } from "@/utils/albumStats";
 import styles from "./AppShell.module.scss";
@@ -16,6 +17,10 @@ export default function AppShell() {
   const [activeTab, setActiveTab] = useState("home");
   const [album, setAlbum] = useState(null);
   const [albumError, setAlbumError] = useState(null);
+  const [sectionTransitionOpen, setSectionTransitionOpen] = useState(false);
+  const [sectionTransitionKey, setSectionTransitionKey] = useState(0);
+  const sectionTransitionCloseTimer = useRef(null);
+  const prevActiveTabRef = useRef(activeTab);
   const { progress, hydrated, ...progressActions } = useAlbumProgress();
 
   useEffect(() => {
@@ -43,10 +48,40 @@ export default function AppShell() {
     return computeAlbumStats(album, progress);
   }, [album, progress]);
 
-  const handleTabChange = (id) => {
+  const handleTabChange = useCallback((id) => {
     if (!SECTION_IDS.has(id)) return;
-    setActiveTab(id);
-  };
+    setActiveTab((prev) => (prev === id ? prev : id));
+  }, []);
+
+  useEffect(() => {
+    const prev = prevActiveTabRef.current;
+    if (prev === activeTab) return;
+    prevActiveTabRef.current = activeTab;
+    if (sectionTransitionCloseTimer.current != null) {
+      clearTimeout(sectionTransitionCloseTimer.current);
+      sectionTransitionCloseTimer.current = null;
+    }
+    setSectionTransitionKey((k) => k + 1);
+    setSectionTransitionOpen(true);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!sectionTransitionOpen) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ms = reduced ? 90 : 580;
+    sectionTransitionCloseTimer.current = window.setTimeout(() => {
+      sectionTransitionCloseTimer.current = null;
+      setSectionTransitionOpen(false);
+    }, ms);
+    return () => {
+      if (sectionTransitionCloseTimer.current != null) {
+        clearTimeout(sectionTransitionCloseTimer.current);
+        sectionTransitionCloseTimer.current = null;
+      }
+    };
+  }, [sectionTransitionOpen, activeTab]);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -77,7 +112,8 @@ export default function AppShell() {
   return (
     <div className={styles.shell}>
       <MainNav active={activeTab} onChange={handleTabChange} />
-      <main className={styles.main}>
+      <SectionTransitionOverlay open={sectionTransitionOpen} animationKey={sectionTransitionKey} />
+      <main className={styles.main} aria-busy={sectionTransitionOpen}>
         <div className={styles.container}>
           {activeTab === "home" ? (
             <HomeSection

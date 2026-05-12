@@ -1,0 +1,98 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+$fill-duration: 0.55s;
+
+.root {
+  position: fixed;
+  top: var(--layout-nav-height);
+  left: 0;
+  right: 0;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-xl;
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+
+  @include breakpoint-up(md) {
+    bottom: 0;
+  }
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-lg;
+  text-align: center;
+  pointer-events: none;
+}
+
+.logo {
+  display: block;
+  height: clamp(48px, 12vw, 72px);
+  width: auto;
+  max-width: min(220px, 70vw);
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.38;
+  flex-shrink: 0;
+}
+
+.wordmark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-display);
+  font-size: clamp(26px, 6.5vw, 42px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-ink);
+}
+
+.wordmarkGhost,
+.wordmarkFill {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.wordmarkGhost {
+  opacity: 0.22;
+  color: var(--color-ink);
+}
+
+.brandSuffix {
+  color: var(--fifa-26-gold);
+}
+
+.wordmarkGhost .brandSuffix {
+  opacity: 0.45;
+}
+
+.wordmarkFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  clip-path: inset(0 100% 0 0);
+  animation: wordmarkFillLtr $fill-duration cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes wordmarkFillLtr {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmarkFill {
+    animation: none;
+    clip-path: inset(0 0 0 0);
+  }
+}

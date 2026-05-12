@@ -63,7 +63,7 @@ export default function AlbumSection({
   onResetProgress,
 }) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const sectionRef = useRef(null);
+  const searchResultsRef = useRef(null);
   const skipQueryScrollRef = useRef(true);
 
   const { stickers = [], teams = [] } = album || {};
@@ -97,9 +97,8 @@ export default function AlbumSection({
       skipQueryScrollRef.current = false;
       return;
     }
-    const narrow = window.matchMedia("(max-width: 1023px)").matches;
-    if (!narrow) return;
-    const el = sectionRef.current;
+    if (!filters.query.trim()) return;
+    const el = searchResultsRef.current;
     if (!el) return;
     requestAnimationFrame(() => {
       el.scrollIntoView({ block: "start", behavior: "auto" });
@@ -123,7 +122,7 @@ export default function AlbumSection({
   }
 
   return (
-    <section ref={sectionRef} className={styles.section} aria-label="Mi álbum">
+    <section className={styles.section} aria-label="Mi álbum">
       <header className={styles.header}>
         <p className={styles.eyebrow}>Mi álbum</p>
         <h2 className={styles.title}>El álbum completo</h2>
@@ -142,51 +141,53 @@ export default function AlbumSection({
         onReplaceProgress={onReplaceProgress}
       />
 
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No encontramos figuritas con esos filtros"
-          description="Probá ajustar la búsqueda, cambiar la sección o quitar el filtro de selección."
-          icon="?"
-          action={
-            filtersActive ? (
-              <button
-                type="button"
-                className={styles.resetFilters}
-                onClick={() => setFilters(DEFAULT_FILTERS)}
-              >
-                Limpiar filtros
-              </button>
-            ) : null
-          }
-        />
-      ) : (
-        <div className={styles.groups}>
-          <StickerSection
-            eyebrow="Sección"
-            title="FWC"
-            stickers={grouped.fwcStickers}
-            owned={progress.owned}
-            duplicates={progress.duplicates}
-            onToggle={onToggle}
-            onAddDuplicate={onAddDuplicate}
-            onDecreaseDuplicate={onDecreaseDuplicate}
-            density="compact"
+      <div ref={searchResultsRef} className={styles.searchResultsAnchor}>
+        {filtered.length === 0 ? (
+          <EmptyState
+            title="No encontramos figuritas con esos filtros"
+            description="Probá ajustar la búsqueda, cambiar la sección o quitar el filtro de selección."
+            icon="?"
+            action={
+              filtersActive ? (
+                <button
+                  type="button"
+                  className={styles.resetFilters}
+                  onClick={() => setFilters(DEFAULT_FILTERS)}
+                >
+                  Limpiar filtros
+                </button>
+              ) : null
+            }
           />
-          {grouped.teamGroups.map(({ team, stickers: teamStickers }) => (
-            <TeamSection
-              key={team.code}
-              team={team}
-              stickers={teamStickers}
+        ) : (
+          <div className={styles.groups}>
+            <StickerSection
+              eyebrow="Sección"
+              title="FWC"
+              stickers={grouped.fwcStickers}
               owned={progress.owned}
               duplicates={progress.duplicates}
-              stats={computeTeamStats(team, album, progress)}
               onToggle={onToggle}
               onAddDuplicate={onAddDuplicate}
               onDecreaseDuplicate={onDecreaseDuplicate}
+              density="compact"
             />
-          ))}
-        </div>
-      )}
+            {grouped.teamGroups.map(({ team, stickers: teamStickers }) => (
+              <TeamSection
+                key={team.code}
+                team={team}
+                stickers={teamStickers}
+                owned={progress.owned}
+                duplicates={progress.duplicates}
+                stats={computeTeamStats(team, album, progress)}
+                onToggle={onToggle}
+                onAddDuplicate={onAddDuplicate}
+                onDecreaseDuplicate={onDecreaseDuplicate}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

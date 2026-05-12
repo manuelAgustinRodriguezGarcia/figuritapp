@@ -45,6 +45,10 @@
   color: var(--color-mute);
 }
 
+.searchResultsAnchor {
+  scroll-margin-top: calc(var(--layout-nav-height) + #{$space-md});
+}
+
 .groups {
   display: flex;
   flex-direction: column;
