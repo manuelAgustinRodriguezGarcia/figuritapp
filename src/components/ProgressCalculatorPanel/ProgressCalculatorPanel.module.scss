@@ -6,6 +6,10 @@
   flex-direction: column;
   gap: $space-sm;
   padding: $space-md 0;
+
+  @media (max-width: ($bp-md - 1px)) {
+    padding-top: 0;
+  }
 }
 
 .cardHead {

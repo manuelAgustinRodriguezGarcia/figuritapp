@@ -124,7 +124,12 @@ export default function ProgressExportPanel({ progress, albumStickers, teams, hy
           </div>
 
           <div className={styles.missingSubsection}>
-            <h4 className={styles.missingTitle}>Compartir figus que me faltan</h4>
+            <div className={styles.cardHead}>
+              <span className={styles.cardIcon} aria-hidden>
+                <FileUser size={22} strokeWidth={2} />
+              </span>
+              <h4 className={styles.cardTitle}>Compartir figus que me faltan</h4>
+            </div>
             <p className={styles.missingHelper}>
               Armamos el texto FIGURITAPP con lo que todavía no marcaste, para mandarlo por WhatsApp.
             </p>

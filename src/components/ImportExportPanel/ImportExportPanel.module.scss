@@ -54,7 +54,7 @@
 
 @media (max-width: ($bp-md - 1px)) {
   .panelOptionsOpen .optionsMobileShell {
-    gap: $space-sm;
+    gap: $space-md;
   }
 }
 
@@ -199,10 +199,6 @@
   display: flex;
   flex-direction: column;
   gap: $space-md;
-
-  @media (max-width: ($bp-md - 1px)) {
-    gap: $space-lg;
-  }
 
   @include breakpoint-up(md) {
     overflow: visible;
