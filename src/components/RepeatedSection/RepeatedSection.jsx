@@ -8,6 +8,7 @@ import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
 import SectionScrollFab from "@/components/SectionScrollFab/SectionScrollFab";
 import ShareRepeatedPanel from "@/components/ShareRepeatedPanel/ShareRepeatedPanel";
 import CompareRepeatedPanel from "@/components/CompareRepeatedPanel/CompareRepeatedPanel";
+import RepesSwapClearModal from "@/components/RepesSwapClearModal/RepesSwapClearModal";
 import {
   mergeParsedRepeatedStickerCounts,
   parseRepeatedShareText,
@@ -93,7 +94,7 @@ export default function RepeatedSection({
   const [importText, setImportText] = useState("");
   const [importParseResult, setImportParseResult] = useState(null);
   const [repesImportToast, setRepesImportToast] = useState(null);
-  const [compareReceiveKey, setCompareReceiveKey] = useState(0);
+  const [swapClearOpen, setSwapClearOpen] = useState(false);
 
   const stickers = useMemo(() => album?.stickers || [], [album]);
 
@@ -206,6 +207,15 @@ export default function RepeatedSection({
     setImportParseResult(null);
     setImportText("");
     setImportModalOpen(true);
+  }, []);
+
+  const handleOpenSwapClear = useCallback(() => {
+    setRepesImportToast(null);
+    setSwapClearOpen(true);
+  }, []);
+
+  const handleCloseSwapClear = useCallback(() => {
+    setSwapClearOpen(false);
   }, []);
 
   const handleAnalyzeImport = useCallback(() => {
@@ -364,8 +374,9 @@ export default function RepeatedSection({
             <span className={styles.tradeLead}>Compartir mis repes</span> arma el texto FIGURITAPP con lo que cargaste
             arriba (ideal para WhatsApp).{" "}
             <span className={styles.tradeLead}>Recibir repes de otro</span> te permite pegar la lista de figus que le
-            sirven a tu amigo y descontarlas de tus repetidas. Nada se guarda en un servidor: todo pasa en tu
-            dispositivo.
+            sirven a tu amigo, ver qué te conviene y copiar el texto útil. Para descontar lo que ya cambiaste, usá{" "}
+            <span className={styles.tradeLead}>Borrar repes cambiadas</span>. Nada se guarda en un servidor: todo pasa
+            en tu dispositivo.
           </p>
         </div>
         <div className={styles.tradeGrid}>
@@ -373,26 +384,26 @@ export default function RepeatedSection({
             <ShareRepeatedPanel duplicates={progress?.duplicates} album={album} />
           </div>
           <div className={styles.tradeCard}>
-            <CompareRepeatedPanel
-              key={compareReceiveKey}
-              album={album}
-              progress={progress}
-              hydrated={hydrated}
-              onApplyTradeDeductions={onApplyTradeDeductions}
-            />
+            <CompareRepeatedPanel album={album} progress={progress} />
           </div>
         </div>
         <div className={styles.tradeFooterActions}>
-          <button
-            type="button"
-            className={styles.clearSwappedRepesBtn}
-            onClick={() => setCompareReceiveKey((k) => k + 1)}
-          >
+          <button type="button" className={styles.clearSwappedRepesBtn} onClick={handleOpenSwapClear}>
             <Eraser size={18} strokeWidth={2} aria-hidden className={styles.clearSwappedRepesIcon} />
             Borrar repes cambiadas
           </button>
         </div>
       </div>
+
+      <RepesSwapClearModal
+        open={swapClearOpen}
+        onClose={handleCloseSwapClear}
+        album={album}
+        progress={progress}
+        hydrated={hydrated}
+        onApplyTradeDeductions={onApplyTradeDeductions}
+        onAfterDeduction={(msg) => setRepesImportToast(msg)}
+      />
 
       {repeatedItems.length === 0 ? (
         <EmptyState
