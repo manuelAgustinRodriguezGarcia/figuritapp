@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useLayoutEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import ProgressExportPanel from "@/components/ProgressExportPanel/ProgressExportPanel";
 import ProgressImportPanel from "@/components/ProgressImportPanel/ProgressImportPanel";
 import ProgressCalculatorPanel from "@/components/ProgressCalculatorPanel/ProgressCalculatorPanel";
 import styles from "./ImportExportPanel.module.scss";
+
+const MOBILE_MAX_MQ = "(max-width: 1023px)";
 
 export default function ImportExportPanel({
   album,
@@ -13,11 +16,22 @@ export default function ImportExportPanel({
   onResetProgress,
   onReplaceProgress,
 }) {
+  const optionsRegionId = useId();
   const [feedback, setFeedback] = useState(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
+  const [mobileOptionsOpen, setMobileOptionsOpen] = useState(false);
+  const [isNarrowViewport, setIsNarrowViewport] = useState(false);
 
   const stickers = album?.stickers || [];
   const teams = album?.teams || [];
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(MOBILE_MAX_MQ);
+    const sync = () => setIsNarrowViewport(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   function handleReset() {
     setConfirmingReset(true);
@@ -35,7 +49,10 @@ export default function ImportExportPanel({
   }
 
   return (
-    <section className={styles.panel} aria-label="Importar, exportar y reiniciar progreso">
+    <section
+      className={`${styles.panel} ${mobileOptionsOpen ? styles.panelOptionsOpen : ""}`}
+      aria-label="Importar, exportar y reiniciar progreso"
+    >
       <header className={styles.header}>
         <p className={styles.eyebrow}>Tu progreso</p>
         <h3 className={styles.title}>Exportar, importar o reiniciar</h3>
@@ -44,27 +61,66 @@ export default function ImportExportPanel({
         </p>
       </header>
 
-      <ProgressExportPanel
-        progress={progress}
-        albumStickers={stickers}
-        teams={teams}
-        hydrated={hydrated}
-      />
+      <div className={styles.optionsMobileShell}>
+        <button
+          type="button"
+          className={`${styles.mobileOptionsToggle} ${mobileOptionsOpen ? styles.mobileOptionsToggleOpen : ""}`}
+          aria-expanded={mobileOptionsOpen}
+          aria-controls={optionsRegionId}
+          onClick={() => setMobileOptionsOpen((v) => !v)}
+        >
+          <span className={styles.mobileOptionsToggleIconWrap} aria-hidden>
+            <ChevronDown size={22} strokeWidth={2} className={styles.mobileOptionsToggleIcon} />
+          </span>
+          <span className={styles.mobileOptionsToggleLabelWrap}>
+            <span
+              className={`${styles.mobileOptionsToggleText} ${!mobileOptionsOpen ? styles.mobileOptionsToggleTextVisible : ""}`}
+            >
+              Mostrar mis opciones
+            </span>
+            <span
+              className={`${styles.mobileOptionsToggleText} ${mobileOptionsOpen ? styles.mobileOptionsToggleTextVisible : ""}`}
+            >
+              Cerrar mis opciones
+            </span>
+          </span>
+        </button>
 
-      <ProgressImportPanel
-        albumStickers={stickers}
-        currentProgress={progress}
-        hydrated={hydrated}
-        onReplaceProgress={onReplaceProgress}
-      />
+        <div className={styles.optionsBody}>
+          <div
+            id={optionsRegionId}
+            className={styles.optionsBodyInner}
+            inert={isNarrowViewport && !mobileOptionsOpen ? true : undefined}
+          >
+            <ProgressExportPanel
+              progress={progress}
+              albumStickers={stickers}
+              teams={teams}
+              hydrated={hydrated}
+            />
 
-      <ProgressCalculatorPanel
-        albumStickers={stickers}
-        teams={teams}
-        currentProgress={progress}
-        hydrated={hydrated}
-        onReplaceProgress={onReplaceProgress}
-      />
+            <div className={styles.toolsRow}>
+              <div className={styles.toolsCell}>
+                <ProgressImportPanel
+                  albumStickers={stickers}
+                  currentProgress={progress}
+                  hydrated={hydrated}
+                  onReplaceProgress={onReplaceProgress}
+                />
+              </div>
+              <div className={styles.toolsCell}>
+                <ProgressCalculatorPanel
+                  albumStickers={stickers}
+                  teams={teams}
+                  currentProgress={progress}
+                  hydrated={hydrated}
+                  onReplaceProgress={onReplaceProgress}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className={styles.actions}>
         <button

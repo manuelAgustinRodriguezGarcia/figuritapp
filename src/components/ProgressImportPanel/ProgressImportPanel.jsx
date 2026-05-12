@@ -148,11 +148,6 @@ export default function ProgressImportPanel({
 
   const importFormBody = (
     <>
-      <h4 className={styles.title}>Importar progreso</h4>
-      <p className={styles.helper}>
-        Pegá una lista de FIGURITAPP para agregar figuritas y repetidas a tu álbum.
-      </p>
-
       <div className={styles.field}>
         <label className={styles.label} htmlFor={fieldId}>
           Pegá tu lista acá
@@ -410,6 +405,15 @@ export default function ProgressImportPanel({
 
   return (
     <div className={styles.block}>
+      <div className={styles.cardHead}>
+        <span className={styles.cardIcon} aria-hidden>
+          <Download size={22} strokeWidth={2} />
+        </span>
+        <h4 className={styles.cardTitle}>Importar progreso</h4>
+      </div>
+      <p className={styles.helper}>
+        Pegá acá la lista de tu album y tus repes que te mandaron por WhatsApp para traer tu progreso.
+      </p>
       <button
         type="button"
         className={`${importFormExpanded ? styles.secondaryBtn : styles.primaryBtn} ${styles.importToggleBtn}`}

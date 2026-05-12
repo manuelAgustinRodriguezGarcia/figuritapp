@@ -728,6 +728,48 @@ export function formatProgressFiguritasOnlyShareText(ownedCodes, albumStickers, 
   return lines.join("\n");
 }
 
+const MISSING_SHARE_TITLE = "FIGURITAPP . Me faltan estas figus:";
+
+/**
+ * Lista FIGURITAPP de figuritas del álbum que todavía no están marcadas como conseguidas.
+ * @param {{ owned?: Record<string, boolean>, duplicates?: Record<string, unknown> }} progress
+ * @param {object[]} albumStickers
+ * @param {object[]} [teams]
+ */
+export function formatMissingFiguritasShareText(progress, albumStickers, teams) {
+  const stickers = Array.isArray(albumStickers) ? albumStickers : [];
+  const ownedMap = progress?.owned && typeof progress.owned === "object" ? progress.owned : {};
+  const missingCodes = stickers.map((s) => s.code).filter((code) => Boolean(code) && !ownedMap[code]);
+  const grouped = groupStickerCodesForShare(missingCodes, stickers, teams);
+
+  const lines = [MISSING_SHARE_TITLE, "", "Figuritas:"];
+  const bodyLines = [];
+  if (grouped.panini) bodyLines.push(formatOwnedPaniniLine());
+  const olFwc = formatOwnedFwcLine(grouped.fwcNums);
+  if (olFwc) bodyLines.push(olFwc);
+  for (const country of grouped.countryOrder || getCountryMetaInAlbumOrder()) {
+    const m = grouped.teamNums.get(country.code);
+    if (!m || m.size === 0) continue;
+    const tl = formatOwnedTeamLine(country.code, m);
+    if (tl) bodyLines.push(tl);
+  }
+  if (bodyLines.length === 0) {
+    if (!stickers.length) {
+      lines.push("Todavía no hay datos del álbum para armar la lista.");
+    } else {
+      lines.push("¡Ya marcaste todas las figuritas! No te falta ninguna.");
+    }
+  } else {
+    for (const ol of bodyLines) lines.push(ol);
+  }
+
+  lines.push("");
+  lines.push(FOOTER_LINE_1);
+  lines.push(FOOTER_URL);
+
+  return lines.join("\n");
+}
+
 /**
  * Interpreta una línea estilo export (con ":") como lista de figuritas conseguidas y devuelve códigos.
  * @param {string} line

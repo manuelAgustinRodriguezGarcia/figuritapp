@@ -6,13 +6,33 @@
   flex-direction: column;
   gap: $space-sm;
   padding: $space-md 0;
-  border-top: 1px solid var(--color-hairline);
+
+  @include breakpoint-up(md) {
+    min-height: 100%;
+  }
 }
 
-.title {
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  width: 100%;
+}
+
+.cardIcon {
+  display: inline-flex;
+  color: var(--color-ink);
+  flex-shrink: 0;
+}
+
+.cardTitle {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--font-family-display);
+  font-size: clamp(17px, 2.8vw, 20px);
+  font-weight: 500;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--color-ink);
 }
 
@@ -126,6 +146,10 @@
   gap: $space-sm;
   width: 100%;
   box-sizing: border-box;
+
+  @include breakpoint-up(md) {
+    margin-top: auto;
+  }
 }
 
 .importToggleIcon {

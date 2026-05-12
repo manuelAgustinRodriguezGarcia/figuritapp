@@ -198,6 +198,16 @@ export default function ProgressCalculatorPanel({
   return (
     <>
       <div className={styles.root}>
+        <div className={styles.cardHead}>
+          <span className={styles.cardIcon} aria-hidden>
+            <Calculator size={22} strokeWidth={2} />
+          </span>
+          <h4 className={styles.cardTitle}>Calcular progreso</h4>
+        </div>
+        <p className={styles.helper}>
+          Tocá el botón y pegá en el recuadro la lista de figuritas faltantes (el mismo formato que usás para
+          compartirlas) para estimar cuáles ya tenés.
+        </p>
         <button type="button" className={styles.openBtn} onClick={() => setOpen(true)}>
           <Calculator size={20} strokeWidth={2} aria-hidden className={styles.openIcon} />
           Calcular progreso

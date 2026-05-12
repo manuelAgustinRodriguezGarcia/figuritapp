@@ -18,10 +18,52 @@
   }
 }
 
-.title {
+.blockRow {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  width: 100%;
+
+  @include breakpoint-up(md) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: $space-lg;
+    align-items: stretch;
+  }
+}
+
+.blockColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  min-width: 0;
+
+  @include breakpoint-up(md) {
+    min-height: 100%;
+  }
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  width: 100%;
+}
+
+.cardIcon {
+  display: inline-flex;
+  color: var(--color-ink);
+  flex-shrink: 0;
+}
+
+.cardTitle {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--font-family-display);
+  font-size: clamp(17px, 2.8vw, 20px);
+  font-weight: 500;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--color-ink);
 }
 
@@ -37,19 +79,15 @@
   display: flex;
   flex-direction: column;
   gap: $space-sm;
+  width: 100%;
 
   @include breakpoint-up(md) {
-    flex-direction: row;
-    flex-wrap: wrap;
+    margin-top: auto;
   }
 }
 
 .primaryBtn {
   width: 100%;
-
-  @include breakpoint-up(md) {
-    width: auto;
-  }
 
   @include button-reset;
   @include pill-primary;
@@ -73,6 +111,83 @@
 }
 
 .primaryBtnIcon {
+  flex-shrink: 0;
+}
+
+.missingSubsection {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  min-width: 0;
+
+  @include breakpoint-up(md) {
+    min-height: 100%;
+  }
+}
+
+.missingTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.missingHelper {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-charcoal);
+  max-width: 62ch;
+  line-height: 1.45;
+}
+
+.missingShareBtn {
+  @include button-reset;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  min-height: 44px;
+  padding: 0 $space-xl;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  border-radius: 999px;
+  background-color: #fff;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-soft-cloud);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
+
+  @include breakpoint-up(md) {
+    margin-top: auto;
+  }
+}
+
+.missingShareBtnIcon {
   flex-shrink: 0;
 }
 
