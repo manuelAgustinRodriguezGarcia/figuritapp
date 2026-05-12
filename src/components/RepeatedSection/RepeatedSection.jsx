@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { Download } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
@@ -312,6 +312,7 @@ export default function RepeatedSection({
               className={styles.submit}
               onMouseDown={(event) => event.preventDefault()}
             >
+              <Plus size={18} strokeWidth={2} aria-hidden className={styles.submitIcon} />
               Agregar repetida
             </button>
           </div>

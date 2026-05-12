@@ -84,12 +84,15 @@ export default function ShareRepeatedPanel({ duplicates, album }) {
           </span>
           <h4 className={styles.cardTitle}>Compartir repes</h4>
         </div>
-        <p className={styles.hint}>
-          Usa las mismas repes que cargaste arriba: generamos el texto FIGURITAPP listo para WhatsApp.
-        </p>
-        <button type="button" className={styles.actionBtn} onClick={handleShare}>
-          Compartir repes
-        </button>
+        <div className={styles.bodyRow}>
+          <p className={styles.hint}>
+            Usa las mismas repes que cargaste arriba: generamos el texto FIGURITAPP listo para WhatsApp.
+          </p>
+          <button type="button" className={styles.actionBtn} onClick={handleShare}>
+            <Users size={18} strokeWidth={2} aria-hidden className={styles.actionBtnIcon} />
+            Compartir repes
+          </button>
+        </div>
         {manualFallback ? (
           <div className={styles.fallback}>
             <label htmlFor={`${statusId}-manual`} className={styles.fallbackLabel}>

@@ -256,18 +256,21 @@ export default function CompareRepeatedPanel({ album, progress }) {
           </span>
           <h4 className={styles.cardTitle}>Recibir repes</h4>
         </div>
-        <p className={styles.hint}>
-          Pegá la lista FIGURITAPP (u otro texto compatible) y comparala con lo que te falta en el
-          álbum.
-        </p>
-        <button
-          type="button"
-          ref={openButtonRef}
-          className={styles.openBtn}
-          onClick={handleOpen}
-        >
-          Recibir repes
-        </button>
+        <div className={styles.bodyRow}>
+          <p className={styles.hint}>
+            Pegá la lista FIGURITAPP (u otro texto compatible) y comparala con lo que te falta en el
+            álbum.
+          </p>
+          <button
+            type="button"
+            ref={openButtonRef}
+            className={styles.openBtn}
+            onClick={handleOpen}
+          >
+            <ScanSearch size={18} strokeWidth={2} aria-hidden className={styles.openBtnIcon} />
+            Recibir repes
+          </button>
+        </div>
       </div>
 
       {open ? (
