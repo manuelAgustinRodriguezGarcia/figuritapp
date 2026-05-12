@@ -204,13 +204,17 @@
 .importRepesBtn {
   @include button-reset;
   @include pill-secondary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
   width: 100%;
   min-height: 48px;
   padding: 0 $space-xl;
   font-size: 14px;
   font-weight: 500;
 
-  @include breakpoint-up(sm) {
+  @include breakpoint-up(md) {
     width: auto;
     min-width: 200px;
   }
@@ -218,6 +222,10 @@
   &:focus-visible {
     @include focus-ring;
   }
+}
+
+.importRepesBtnIcon {
+  flex-shrink: 0;
 }
 
 .feedback {

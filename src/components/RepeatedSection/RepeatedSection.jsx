@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Download } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
@@ -316,6 +317,7 @@ export default function RepeatedSection({
           </div>
           <div className={styles.importRepesRow}>
             <button type="button" className={styles.importRepesBtn} onClick={handleImportRepes}>
+              <Download size={18} strokeWidth={2} aria-hidden className={styles.importRepesBtnIcon} />
               Importar repetidas
             </button>
           </div>
