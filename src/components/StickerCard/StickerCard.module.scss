@@ -535,6 +535,49 @@
   min-height: calc(44px + #{$space-xs} + #{$space-md});
 }
 
+.clearOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background-color: rgba(17, 17, 17, 0.52);
+}
+
+.clearPanel {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-md;
+  width: auto;
+  height: auto;
+  max-width: none;
+  margin: 0;
+  padding: $space-md;
+  border-radius: inherit;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: none;
+  box-shadow: none;
+}
+
+.clearTitle {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-ink);
+}
+
 /* ≤1023px alineado con StickerCard (MOBILE_MQ): menos altura, misma estructura (desktop sin cambios) */
 @media (max-width: 1023px) {
   .cardRoot {
@@ -562,38 +605,45 @@
     padding: 2px $space-sm $space-sm;
     min-height: 22px;
   }
+
+  .clearOverlay {
+    background-color: rgba(12, 12, 12, 0.22);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .clearPanel {
+    background-color: rgba(255, 255, 255, 0.94);
+    border: none;
+    box-shadow: none;
+  }
+
+  .clearTitle {
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.14em;
+  }
+
+  .clearActions {
+    gap: $space-sm;
+  }
+
+  .clearBtn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .clearBtn svg {
+    width: 17px;
+    height: 17px;
+  }
 }
 
-.clearOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 12;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $space-sm;
-  border-radius: inherit;
-  background-color: rgba(17, 17, 17, 0.52);
-}
-
-.clearPanel {
-  width: 100%;
-  max-width: 220px;
-  padding: $space-md $space-lg;
-  border-radius: $radius-md;
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
-  border: 1px solid var(--color-hairline);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
-}
-
-.clearTitle {
-  margin: 0 0 $space-md;
-  font-family: var(--font-family-display);
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  color: var(--color-ink);
+@media (max-width: 1023px) and (prefers-reduced-motion: reduce) {
+  .clearOverlay {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
 }
 
 .clearActions {
