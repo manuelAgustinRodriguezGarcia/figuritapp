@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ProgressExportPanel from "@/components/ProgressExportPanel/ProgressExportPanel";
 import ProgressImportPanel from "@/components/ProgressImportPanel/ProgressImportPanel";
+import ProgressCalculatorPanel from "@/components/ProgressCalculatorPanel/ProgressCalculatorPanel";
 import styles from "./ImportExportPanel.module.scss";
 
 export default function ImportExportPanel({
@@ -52,6 +53,14 @@ export default function ImportExportPanel({
 
       <ProgressImportPanel
         albumStickers={stickers}
+        currentProgress={progress}
+        hydrated={hydrated}
+        onReplaceProgress={onReplaceProgress}
+      />
+
+      <ProgressCalculatorPanel
+        albumStickers={stickers}
+        teams={teams}
         currentProgress={progress}
         hydrated={hydrated}
         onReplaceProgress={onReplaceProgress}

@@ -68,7 +68,8 @@ function analyzeTextHeadings(text) {
 
 function looksLikeAnySectionOrTeamEmoji(str) {
   if (!str) return false;
-  if (str.includes(SECTION_EMOJIS.FWC) || str.includes(SECTION_EMOJIS.PANINI)) return true;
+  if (str.includes(SECTION_EMOJIS.FWC) || str.includes("🏆") || str.includes("📜")) return true;
+  if (str.includes(SECTION_EMOJIS.PANINI)) return true;
   return Object.values(TEAM_FLAG_EMOJIS).some((e) => str.includes(e));
 }
 
@@ -95,7 +96,7 @@ function splitPrefixWord(s) {
 
 function inferFromEmojiOnly(s) {
   const t = s.trim();
-  if (t === SECTION_EMOJIS.FWC || t.startsWith(SECTION_EMOJIS.FWC)) {
+  if (t === SECTION_EMOJIS.FWC || t.startsWith(SECTION_EMOJIS.FWC) || t === "🏆" || t === "📜") {
     return { section: "fwc" };
   }
   if (t.includes(SECTION_EMOJIS.PANINI) || /^🅿️/.test(t)) {
@@ -144,7 +145,8 @@ function classifyPrefix(left, line, warnings) {
       return { section: "panini" };
     }
     if (w === "FWC") {
-      if (rest && hasUnexpectedEmoji(rest, SECTION_EMOJIS.FWC)) {
+      const restOnlyFwcDecor = rest && /^[\s🌎🏆📜]*$/u.test(rest);
+      if (rest && !restOnlyFwcDecor && hasUnexpectedEmoji(rest, SECTION_EMOJIS.FWC)) {
         warnings.push({
           sourceLine: line,
           reason: "El emoji junto a FWC no coincide con el esperado.",
@@ -230,7 +232,7 @@ function parseNumericStickerToken(tok, section) {
   return { ok: true, num: n, count: c };
 }
 
-function isProgressNoiseLine(line) {
+export function isProgressNoiseLine(line) {
   const t = line.trim();
   if (!t) return false;
   if (/^FIGURITAPP\b/i.test(t)) return true;
@@ -690,6 +692,61 @@ export function formatProgressShareText(progress, albumStickers, teams) {
   lines.push(FOOTER_URL);
 
   return lines.join("\n");
+}
+
+/**
+ * Texto FIGURITAPP solo con la sección "Figuritas" (sin Repes), para copiar resultado del calculador.
+ * @param {string[]} ownedCodes
+ * @param {object[]} albumStickers
+ * @param {object[]} [teams]
+ */
+export function formatProgressFiguritasOnlyShareText(ownedCodes, albumStickers, teams) {
+  const stickers = Array.isArray(albumStickers) ? albumStickers : [];
+  const grouped = groupStickerCodesForShare(ownedCodes, stickers, teams);
+
+  const lines = [SHARE_TITLE, "", "Figuritas:"];
+  const ownedLines = [];
+  if (grouped.panini) ownedLines.push(formatOwnedPaniniLine());
+  const olFwc = formatOwnedFwcLine(grouped.fwcNums);
+  if (olFwc) ownedLines.push(olFwc);
+  for (const country of grouped.countryOrder || getCountryMetaInAlbumOrder()) {
+    const m = grouped.teamNums.get(country.code);
+    if (!m || m.size === 0) continue;
+    const tl = formatOwnedTeamLine(country.code, m);
+    if (tl) ownedLines.push(tl);
+  }
+  if (ownedLines.length === 0) {
+    lines.push("Todavía no marcaste figuritas conseguidas.");
+  } else {
+    for (const ol of ownedLines) lines.push(ol);
+  }
+
+  lines.push("");
+  lines.push(FOOTER_LINE_1);
+  lines.push(FOOTER_URL);
+
+  return lines.join("\n");
+}
+
+/**
+ * Interpreta una línea estilo export (con ":") como lista de figuritas conseguidas y devuelve códigos.
+ * @param {string} line
+ * @param {object[]} albumStickers
+ * @param {object[]} [warnings]
+ */
+export function parseShareFormatLineAsOwnedEntries(line, albumStickers, warnings) {
+  const stickers = Array.isArray(albumStickers) ? albumStickers : [];
+  const owned = [];
+  const invalid = [];
+  const w = warnings || [];
+  if (tryStandalonePanini(line, "owned", stickers, owned, [], [], invalid, "owned")) {
+    return { entries: dedupeOwnedEntries(owned), invalid };
+  }
+  if (!line.includes(":")) {
+    return { entries: [], invalid };
+  }
+  parseStickerListLine(line, "owned", stickers, owned, [], invalid, w);
+  return { entries: dedupeOwnedEntries(owned), invalid };
 }
 
 /**

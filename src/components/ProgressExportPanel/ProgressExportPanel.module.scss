@@ -44,16 +44,13 @@
   }
 }
 
-.primaryBtn,
-.secondaryBtn {
+.primaryBtn {
   width: 100%;
 
   @include breakpoint-up(md) {
     width: auto;
   }
-}
 
-.primaryBtn {
   @include button-reset;
   @include pill-primary;
   display: inline-flex;
@@ -77,24 +74,6 @@
 
 .primaryBtnIcon {
   flex-shrink: 0;
-}
-
-.secondaryBtn {
-  @include button-reset;
-  @include pill-secondary;
-  height: 44px;
-  padding: 0 $space-xl;
-  font-size: 13px;
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-info);
-    outline-offset: 2px;
-  }
 }
 
 .toastAnchor {
@@ -205,15 +184,5 @@
   &:focus-visible {
     outline: 2px solid var(--color-info);
     outline-offset: 2px;
-  }
-}
-
-.textPreview {
-  margin-top: $space-xs;
-}
-
-@media (max-width: ($bp-md - 1px)) {
-  .actions .secondaryBtn {
-    display: none;
   }
 }

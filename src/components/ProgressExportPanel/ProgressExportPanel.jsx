@@ -12,7 +12,6 @@ export default function ProgressExportPanel({ progress, albumStickers, teams, hy
   const manualLabelId = useId();
   const [toast, setToast] = useState(null);
   const [copyFailedText, setCopyFailedText] = useState(null);
-  const [showText, setShowText] = useState(false);
 
   const hideTimerRef = useRef(null);
   const exitTimerRef = useRef(null);
@@ -82,14 +81,6 @@ export default function ProgressExportPanel({ progress, albumStickers, teams, hy
             <Share2 size={18} strokeWidth={2} aria-hidden className={styles.primaryBtnIcon} />
             Copiar progreso
           </button>
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={() => setShowText((v) => !v)}
-            disabled={!hydrated}
-          >
-            {showText ? "Ocultar texto" : "Ver texto"}
-          </button>
         </div>
 
         {copyFailedText ? (
@@ -103,19 +94,6 @@ export default function ProgressExportPanel({ progress, albumStickers, teams, hy
               readOnly
               value={copyFailedText}
               rows={12}
-            />
-          </div>
-        ) : null}
-
-        {showText && !copyFailedText ? (
-          <div className={`${styles.manualWrap} ${styles.textPreview}`}>
-            <span className={styles.manualLabel}>Vista del texto</span>
-            <textarea
-              className={styles.textarea}
-              readOnly
-              value={shareText}
-              rows={12}
-              aria-label="Vista del texto exportado"
             />
           </div>
         ) : null}
