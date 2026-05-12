@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { ScanSearch } from "lucide-react";
+import { Copy, ListChecks, ScanSearch } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
 import {
@@ -32,41 +32,50 @@ function stickerKindLabel(sticker) {
   return null;
 }
 
-function CompareResultRow({ row }) {
+function CompareResultRow({ row, selectable = false, selected = false, onToggle }) {
   const { sticker, count, flagEmoji } = row;
   const isTeam = sticker.category === "team";
   const kind = stickerKindLabel(sticker);
   const playerLine = sticker.playerName?.trim() || null;
   const sectionLine = `${describeStickerSection(sticker)}${flagEmoji ? ` ${flagEmoji}` : ""}`;
 
-  return (
-    <li className={styles.resultItem}>
-      <div className={styles.resultHead}>
-        {isTeam ? (
-          <FlagIcon flagCode={sticker.flagCode} label={sticker.teamName} size="lg" />
-        ) : sticker.category === "fwc" ? (
-          <FwcStickerVisual sticker={sticker} variant="list" isOwned />
-        ) : (
-          <span className={styles.resultGlyph} aria-hidden="true">
-            ◆
-          </span>
-        )}
-        <div className={styles.resultBody}>
-          <span className={styles.resultCode}>{formatStickerCodeSpaced(sticker.code)}</span>
-          {playerLine ? <span className={styles.resultName}>{playerLine}</span> : null}
-          <span className={styles.resultSection}>{sectionLine}</span>
-          <div className={styles.resultMeta}>
-            {kind ? (
-              <span className={styles.specialBadge}>{kind}</span>
-            ) : null}
-            <span className={styles.avail}>
-              Disponible: x{count}
-            </span>
-          </div>
-        </div>
+  const head = (
+    <div className={styles.resultHead}>
+      {isTeam ? (
+        <FlagIcon flagCode={sticker.flagCode} label={sticker.teamName} size="lg" />
+      ) : sticker.category === "fwc" ? (
+        <FwcStickerVisual sticker={sticker} variant="list" isOwned />
+      ) : (
+        <span className={styles.resultGlyph} aria-hidden="true">
+          ◆
+        </span>
+      )}
+      <div className={styles.resultBody}>
+        <span className={styles.resultCode}>{formatStickerCodeSpaced(sticker.code)}</span>
+        {playerLine ? <span className={styles.resultName}>{playerLine}</span> : null}
+        {kind ? <span className={styles.resultName}>{kind}</span> : null}
+        <span className={styles.resultSection}>{sectionLine}</span>
+        <span className={styles.avail}>Disponible: x{count}</span>
       </div>
-    </li>
+    </div>
   );
+
+  if (selectable) {
+    return (
+      <li className={`${styles.resultItem} ${styles.resultItemPick}`}>
+        <button
+          type="button"
+          className={`${styles.resultItemSelect} ${selected ? styles.resultItemSelectOn : ""}`}
+          aria-pressed={selected}
+          onClick={() => onToggle?.(row.code)}
+        >
+          {head}
+        </button>
+      </li>
+    );
+  }
+
+  return <li className={styles.resultItem}>{head}</li>;
 }
 
 export default function CompareRepeatedPanel({ album, progress }) {
@@ -81,6 +90,8 @@ export default function CompareRepeatedPanel({ album, progress }) {
   const [partialNotice, setPartialNotice] = useState(null);
   const [result, setResult] = useState(null);
   const [copyFeedback, setCopyFeedback] = useState(null);
+  const [tradePickMode, setTradePickMode] = useState(false);
+  const [tradePickCodes, setTradePickCodes] = useState([]);
 
   const stickers = useMemo(() => album?.stickers || [], [album]);
 
@@ -90,6 +101,8 @@ export default function CompareRepeatedPanel({ album, progress }) {
     setPartialNotice(null);
     setResult(null);
     setCopyFeedback(null);
+    setTradePickMode(false);
+    setTradePickCodes([]);
     requestAnimationFrame(() => openButtonRef.current?.focus());
   }, []);
 
@@ -113,12 +126,57 @@ export default function CompareRepeatedPanel({ album, progress }) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, handleClose]);
 
+  useEffect(() => {
+    if (!copyFeedback) return undefined;
+    const id = window.setTimeout(() => setCopyFeedback(null), 3800);
+    return () => window.clearTimeout(id);
+  }, [copyFeedback]);
+
+  const handleToggleTradePick = useCallback((code) => {
+    setTradePickCodes((prev) =>
+      prev.includes(code)
+        ? prev.filter((c) => c !== code)
+        : [...prev, code].sort((a, b) => a.localeCompare(b)),
+    );
+  }, []);
+
+  const handleStartTradePick = useCallback(() => {
+    setTradePickMode(true);
+    setTradePickCodes([]);
+    setCopyFeedback(null);
+  }, []);
+
+  const handleCancelTradePick = useCallback(() => {
+    setTradePickMode(false);
+    setTradePickCodes([]);
+  }, []);
+
+  const handleCopyPickedList = useCallback(async () => {
+    if (!result || tradePickCodes.length === 0) return;
+    const pickSet = new Set(tradePickCodes);
+    const rows = result.useful.filter((r) => pickSet.has(r.code));
+    if (rows.length === 0) return;
+    const text = formatUsefulHumanShareText(rows);
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopyFeedback("Lista armada copiada al portapapeles.");
+      } catch {
+        setParseError("No pudimos copiar la lista. Intentá de nuevo.");
+      }
+    } else {
+      setParseError("Tu navegador no permite copiar al portapapeles desde acá.");
+    }
+  }, [result, tradePickCodes]);
+
   const handleOpen = useCallback(() => {
     setOpen(true);
     setParseError(null);
     setPartialNotice(null);
     setResult(null);
     setCopyFeedback(null);
+    setTradePickMode(false);
+    setTradePickCodes([]);
   }, []);
 
   const handleClear = useCallback(() => {
@@ -127,6 +185,8 @@ export default function CompareRepeatedPanel({ album, progress }) {
     setParseError(null);
     setPartialNotice(null);
     setCopyFeedback(null);
+    setTradePickMode(false);
+    setTradePickCodes([]);
     textareaRef.current?.focus();
   }, []);
 
@@ -135,6 +195,8 @@ export default function CompareRepeatedPanel({ album, progress }) {
     setPartialNotice(null);
     setResult(null);
     setCopyFeedback(null);
+    setTradePickMode(false);
+    setTradePickCodes([]);
 
     const pr = parseRepeatedShareText(pasteText, stickers);
     if (pr.parsed.length === 0) {
@@ -177,6 +239,8 @@ export default function CompareRepeatedPanel({ album, progress }) {
   }, [result]);
 
   const unknownCount = allUnknown.length;
+
+  const tradePickSet = useMemo(() => new Set(tradePickCodes), [tradePickCodes]);
 
   const summarySentence =
     result && result.receivedTotal > 0
@@ -287,12 +351,6 @@ export default function CompareRepeatedPanel({ album, progress }) {
                 </ul>
               ) : null}
 
-              {copyFeedback ? (
-                <p className={styles.copyOk} role="status" aria-live="polite">
-                  {copyFeedback}
-                </p>
-              ) : null}
-
               {result ? (
                 <>
                   {summarySentence ? (
@@ -326,8 +384,24 @@ export default function CompareRepeatedPanel({ album, progress }) {
                     disabled={result.useful.length === 0}
                     onClick={handleCopyUseful}
                   >
+                    <Copy size={18} strokeWidth={2} aria-hidden className={styles.copyUsefulIcon} />
                     Copiar lista útil
                   </button>
+
+                  <div className={styles.tradePickBlock}>
+                    <button
+                      type="button"
+                      className={styles.pickListBtn}
+                      disabled={result.useful.length === 0}
+                      onClick={handleStartTradePick}
+                    >
+                      <ListChecks size={20} strokeWidth={2.25} aria-hidden className={styles.pickListIcon} />
+                      Armar lista de repes
+                    </button>
+                    <p className={styles.pickListHint}>
+                      Armá la lista de las repes que querés cambiar con tu amigo/a.
+                    </p>
+                  </div>
 
                   <section className={styles.group} aria-labelledby={`${titleId}-g-useful`}>
                     <h3 id={`${titleId}-g-useful`} className={styles.groupTitle}>
@@ -340,7 +414,13 @@ export default function CompareRepeatedPanel({ album, progress }) {
                     ) : (
                       <ul className={styles.resultList}>
                         {result.useful.map((row) => (
-                          <CompareResultRow key={row.code} row={row} />
+                          <CompareResultRow
+                            key={row.code}
+                            row={row}
+                            selectable={tradePickMode}
+                            selected={tradePickSet.has(row.code)}
+                            onToggle={handleToggleTradePick}
+                          />
                         ))}
                       </ul>
                     )}
@@ -386,7 +466,36 @@ export default function CompareRepeatedPanel({ album, progress }) {
                 </>
               ) : null}
             </div>
+
+            {tradePickMode && result ? (
+              <div className={styles.tradePickFooter}>
+                <div className={styles.tradePickToolbar}>
+                  <span className={styles.tradePickCount} aria-live="polite">
+                    Seleccionadas: <strong>{tradePickCodes.length}</strong>
+                  </span>
+                  <div className={styles.tradePickToolbarActions}>
+                    <button
+                      type="button"
+                      className={styles.copyPickedBtn}
+                      disabled={tradePickCodes.length === 0}
+                      onClick={handleCopyPickedList}
+                    >
+                      <Copy size={18} strokeWidth={2} aria-hidden className={styles.copyUsefulIcon} />
+                      Copiar lista creada
+                    </button>
+                    <button type="button" className={styles.cancelTradePick} onClick={handleCancelTradePick}>
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
+        </div>
+      ) : null}
+      {copyFeedback ? (
+        <div className={styles.copyToast} role="status" aria-live="polite">
+          {copyFeedback}
         </div>
       ) : null}
     </>

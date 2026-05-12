@@ -233,6 +233,32 @@ export default function RepeatedSection({
         </div>
       </form>
 
+      <div
+        id="repes-compartir-recibir"
+        className={styles.tradeZone}
+        aria-label="Compartir y recibir listas de repes"
+      >
+        <div className={styles.tradeHeader}>
+          <p className={styles.tradeEyebrow}>Intercambio</p>
+          <h3 className={styles.tradeTitle}>Compartir y recibir repes</h3>
+          <p className={styles.tradeSubtitle}>
+            <span className={styles.tradeLead}>Exportar</span> arma el texto FIGURITAPP con las mismas
+            repes que cargaste arriba (ideal para WhatsApp).{" "}
+            <span className={styles.tradeLead}>Recibir</span> analiza la lista de otra persona y te
+            muestra cuáles te sirven según lo que te falta en el álbum. Nada se guarda en un servidor:
+            todo pasa en tu dispositivo.
+          </p>
+        </div>
+        <div className={styles.tradeGrid}>
+          <div className={styles.tradeCard}>
+            <ShareRepeatedPanel duplicates={progress?.duplicates} album={album} />
+          </div>
+          <div className={styles.tradeCard}>
+            <CompareRepeatedPanel album={album} progress={progress} />
+          </div>
+        </div>
+      </div>
+
       {repeatedItems.length === 0 ? (
         <EmptyState
           title="Todavía no agregaste figuritas repetidas."
@@ -285,32 +311,6 @@ export default function RepeatedSection({
           })}
         </ul>
       )}
-
-      <div
-        id="repes-compartir-recibir"
-        className={`${styles.tradeZone} ${repeatedItems.length > 0 ? styles.tradeZoneTied : ""}`}
-        aria-label="Compartir y recibir listas de repes"
-      >
-        <div className={styles.tradeHeader}>
-          <p className={styles.tradeEyebrow}>Intercambio</p>
-          <h3 className={styles.tradeTitle}>Compartir y recibir repes</h3>
-          <p className={styles.tradeSubtitle}>
-            <span className={styles.tradeLead}>Exportar</span> arma el texto FIGURITAPP con las mismas
-            repes que cargaste arriba (ideal para WhatsApp).{" "}
-            <span className={styles.tradeLead}>Recibir</span> analiza la lista de otra persona y te
-            muestra cuáles te sirven según lo que te falta en el álbum. Nada se guarda en un servidor:
-            todo pasa en tu dispositivo.
-          </p>
-        </div>
-        <div className={styles.tradeGrid}>
-          <div className={styles.tradeCard}>
-            <ShareRepeatedPanel duplicates={progress?.duplicates} album={album} />
-          </div>
-          <div className={styles.tradeCard}>
-            <CompareRepeatedPanel album={album} progress={progress} />
-          </div>
-        </div>
-      </div>
 
       <SectionScrollFab
         enabled={Boolean(album)}
