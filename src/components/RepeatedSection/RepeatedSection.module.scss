@@ -9,6 +9,10 @@
 
 .sectionWithFilterBar {
   padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+
+  @include breakpoint-up(md) {
+    padding-bottom: 0;
+  }
 }
 
 .listResultsAnchor {

@@ -401,6 +401,10 @@ export default function RepeatedSection({
         </p>
       ) : null}
 
+      {album ? (
+        <FilterBar variant="repes" filters={listFilters} onChange={setListFilters} />
+      ) : null}
+
       <div
         id="repes-compartir-recibir"
         className={styles.tradeZone}
@@ -443,10 +447,6 @@ export default function RepeatedSection({
         onApplyTradeDeductions={onApplyTradeDeductions}
         onAfterDeduction={(msg) => setRepesImportToast(msg)}
       />
-
-      {album ? (
-        <FilterBar variant="repes" filters={listFilters} onChange={setListFilters} />
-      ) : null}
 
       {repeatedItems.length === 0 ? (
         <EmptyState

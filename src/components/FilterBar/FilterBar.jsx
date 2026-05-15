@@ -348,7 +348,18 @@ export default function FilterBar({ filters, onChange, teams, variant = "album" 
         />
       </div>
 
-      {!isRepes ? (
+      {isRepes ? (
+        <div className={`${styles.selectRow} ${styles.repesSortRowDesktop}`}>
+          <CustomDropdown
+            id={desktopSortId}
+            label="Orden"
+            value={sortMode}
+            options={SORT_OPTIONS}
+            onChange={(sortModeValue) => update({ sortMode: sortModeValue })}
+            showOptionIcons
+          />
+        </div>
+      ) : (
         <div className={`${styles.selectRow} ${styles.selectRowDesktopOnly}`}>
           <CustomDropdown
             id={desktopOwnershipId}
@@ -373,7 +384,7 @@ export default function FilterBar({ filters, onChange, teams, variant = "album" 
             showOptionIcons
           />
         </div>
-      ) : null}
+      )}
     </section>
   );
 }
