@@ -1,5 +1,17 @@
 import { SORT_MODES } from "@/data/albumConfig";
 
+function isAlbumSortAsc(sortMode) {
+  return sortMode === SORT_MODES.ALBUM;
+}
+
+function isAlbumSortDesc(sortMode) {
+  return sortMode === SORT_MODES.ALBUM_DESC;
+}
+
+export function isAlbumSortMode(sortMode) {
+  return isAlbumSortAsc(sortMode) || isAlbumSortDesc(sortMode);
+}
+
 function compareFwcAlbumOrder(a, b) {
   const aFwc = a.category === "fwc";
   const bFwc = b.category === "fwc";
@@ -15,8 +27,40 @@ function compareFwcAlbumOrder(a, b) {
   return 0;
 }
 
-function sortFwcStickersAlbumOrder(fwcs) {
-  return [...fwcs].sort(compareFwcAlbumOrder);
+function sortFwcStickersAlbumOrder(fwcs, ascending = true) {
+  const sorted = [...fwcs].sort(compareFwcAlbumOrder);
+  return ascending ? sorted : [...sorted].reverse();
+}
+
+function compareTeamStickersInAlbum(a, b, ascending) {
+  const na = Number(a.number) || 0;
+  const nb = Number(b.number) || 0;
+  return ascending ? na - nb : nb - na;
+}
+
+function compareStickersAlbumOrder(a, b, teamIndex, ascending) {
+  const dir = ascending ? 1 : -1;
+  const aFwc = a.category === "fwc";
+  const bFwc = b.category === "fwc";
+  const aTeam = a.category === "team";
+  const bTeam = b.category === "team";
+
+  if (aFwc && bFwc) {
+    return dir * compareFwcAlbumOrder(a, b);
+  }
+  if (aFwc && !bFwc) return -1 * dir;
+  if (!aFwc && bFwc) return 1 * dir;
+
+  if (aTeam && bTeam) {
+    const ia = teamIndex.has(a.teamCode) ? teamIndex.get(a.teamCode) : 9999;
+    const ib = teamIndex.has(b.teamCode) ? teamIndex.get(b.teamCode) : 9999;
+    if (ia !== ib) return dir * (ia - ib);
+    return compareTeamStickersInAlbum(a, b, ascending);
+  }
+  if (aTeam && !bTeam) return 1 * dir;
+  if (!aTeam && bTeam) return -1 * dir;
+
+  return dir * String(a.code || "").localeCompare(String(b.code || ""), "es", { numeric: true });
 }
 
 /**
@@ -51,8 +95,11 @@ export function orderTeamsForAlbum(teamsFromAlbum, albumTeamOrder) {
  */
 export function orderTeamsForDisplay(teams, sortMode, albumTeamOrder) {
   const list = Array.isArray(teams) ? [...teams] : [];
-  if (sortMode === SORT_MODES.ALBUM) {
+  if (isAlbumSortAsc(sortMode)) {
     return orderTeamsForAlbum(list, albumTeamOrder);
+  }
+  if (isAlbumSortDesc(sortMode)) {
+    return orderTeamsForAlbum(list, albumTeamOrder).reverse();
   }
   if (sortMode === SORT_MODES.AZ) {
     return list.sort((a, b) => {
@@ -80,14 +127,22 @@ export function orderTeamsForDisplay(teams, sortMode, albumTeamOrder) {
  */
 export function groupFilteredAlbumStickers(filtered, teams, sortMode, albumTeamOrder) {
   const list = Array.isArray(filtered) ? filtered : [];
-  const fwcStickers = sortFwcStickersAlbumOrder(list.filter((s) => s.category === "fwc"));
+  const albumAsc = isAlbumSortAsc(sortMode);
+  const albumDesc = isAlbumSortDesc(sortMode);
+  const fwcStickers = isAlbumSortMode(sortMode)
+    ? sortFwcStickersAlbumOrder(
+        list.filter((s) => s.category === "fwc"),
+        albumAsc,
+      )
+    : sortFwcStickersAlbumOrder(list.filter((s) => s.category === "fwc"));
   const orderedTeams = orderTeamsForDisplay([...(teams || [])], sortMode, albumTeamOrder || []);
+  const stickerNumberAsc = !albumDesc;
   const teamGroups = orderedTeams
     .map((team) => ({
       team,
       stickers: list
         .filter((s) => s.category === "team" && s.teamCode === team.code)
-        .sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0)),
+        .sort((a, b) => compareTeamStickersInAlbum(a, b, stickerNumberAsc)),
     }))
     .filter((g) => g.stickers.length > 0);
 
@@ -96,7 +151,7 @@ export function groupFilteredAlbumStickers(filtered, teams, sortMode, albumTeamO
 
 /**
  * @param {object[]} stickers
- * @param {"album" | "az" | "za"} sortMode
+ * @param {string} sortMode
  * @param {string[]} albumTeamOrder
  * @returns {object[]}
  */
@@ -136,29 +191,10 @@ export function sortStickers(stickers, sortMode, albumTeamOrder) {
     return out;
   }
 
-  return list.sort((a, b) => {
-    const aFwc = a.category === "fwc";
-    const bFwc = b.category === "fwc";
-    const aTeam = a.category === "team";
-    const bTeam = b.category === "team";
+  if (isAlbumSortMode(sortMode)) {
+    const ascending = isAlbumSortAsc(sortMode);
+    return list.sort((a, b) => compareStickersAlbumOrder(a, b, teamIndex, ascending));
+  }
 
-    if (aFwc && bFwc) {
-      return compareFwcAlbumOrder(a, b);
-    }
-    if (aFwc && !bFwc) return -1;
-    if (!aFwc && bFwc) return 1;
-
-    if (aTeam && bTeam) {
-      const ia = teamIndex.has(a.teamCode) ? teamIndex.get(a.teamCode) : 9999;
-      const ib = teamIndex.has(b.teamCode) ? teamIndex.get(b.teamCode) : 9999;
-      if (ia !== ib) return ia - ib;
-      const na = Number(a.number) || 0;
-      const nb = Number(b.number) || 0;
-      return na - nb;
-    }
-    if (aTeam && !bTeam) return 1;
-    if (!aTeam && bTeam) return -1;
-
-    return String(a.code || "").localeCompare(String(b.code || ""), "es", { numeric: true });
-  });
+  return list.sort((a, b) => compareStickersAlbumOrder(a, b, teamIndex, true));
 }

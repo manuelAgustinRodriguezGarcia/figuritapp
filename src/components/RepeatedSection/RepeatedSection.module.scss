@@ -7,6 +7,27 @@
   gap: $space-xl;
 }
 
+.sectionWithFilterBar {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+.listResultsAnchor {
+  scroll-margin-top: calc(var(--layout-nav-height) + $space-md);
+}
+
+.resetListFilters {
+  @include button-reset;
+  @include pill-secondary;
+  min-height: 44px;
+  padding: 0 $space-lg;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
 .header {
   display: flex;
   flex-direction: column;

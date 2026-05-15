@@ -5,17 +5,29 @@ import { Download, Eraser, Plus } from "lucide-react";
 import FlagIcon from "@/components/FlagIcon/FlagIcon";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import FwcStickerVisual from "@/components/FwcStickerVisual/FwcStickerVisual";
-import SectionScrollFab from "@/components/SectionScrollFab/SectionScrollFab";
 import ShareRepeatedPanel from "@/components/ShareRepeatedPanel/ShareRepeatedPanel";
 import CompareRepeatedPanel from "@/components/CompareRepeatedPanel/CompareRepeatedPanel";
 import RepesSwapClearModal from "@/components/RepesSwapClearModal/RepesSwapClearModal";
+import FilterBar from "@/components/FilterBar/FilterBar";
 import {
   mergeParsedRepeatedStickerCounts,
   parseRepeatedShareText,
   previewRepeatedStickerWhatsAppImport,
 } from "@/utils/repeatedSharing";
+import { applyStickerFilters } from "@/utils/stickerFilters";
+import { sortStickers } from "@/utils/stickerSorting";
+import { FILTER_OWNERSHIP, SORT_MODES } from "@/data/albumConfig";
+import { ALBUM_TEAM_ORDER } from "@/data/countryMeta";
 import { normalizeStickerCode, getStickerByCode } from "@/utils/stickerCode";
 import styles from "./RepeatedSection.module.scss";
+
+const DEFAULT_LIST_FILTERS = {
+  query: "",
+  ownership: FILTER_OWNERSHIP.ALL,
+  sectionId: "all",
+  teamCode: "all",
+  sortMode: SORT_MODES.ALBUM,
+};
 
 function describeStickerSection(sticker) {
   switch (sticker.category) {
@@ -95,6 +107,9 @@ export default function RepeatedSection({
   const [importParseResult, setImportParseResult] = useState(null);
   const [repesImportToast, setRepesImportToast] = useState(null);
   const [swapClearOpen, setSwapClearOpen] = useState(false);
+  const [listFilters, setListFilters] = useState(DEFAULT_LIST_FILTERS);
+  const listResultsRef = useRef(null);
+  const skipListQueryScrollRef = useRef(true);
 
   const stickers = useMemo(() => album?.stickers || [], [album]);
 
@@ -134,16 +149,40 @@ export default function RepeatedSection({
       if (!sticker) continue;
       items.push({ sticker, count: numericCount });
     }
-    items.sort((a, b) => a.sticker.code.localeCompare(b.sticker.code));
     return items;
   }, [album, progress, stickers]);
 
+  const displayedItems = useMemo(() => {
+    if (!repeatedItems.length) return [];
+    const countByCode = new Map(repeatedItems.map((item) => [item.sticker.code, item.count]));
+    const stickerList = repeatedItems.map((item) => item.sticker);
+    const filtered = applyStickerFilters(stickerList, listFilters, progress);
+    const sorted = sortStickers(filtered, listFilters.sortMode || SORT_MODES.ALBUM, ALBUM_TEAM_ORDER);
+    return sorted.map((sticker) => ({
+      sticker,
+      count: countByCode.get(sticker.code) || 0,
+    }));
+  }, [repeatedItems, listFilters, progress]);
+
+  const listFiltersActive =
+    listFilters.query.trim() !== "" ||
+    (listFilters.sortMode || SORT_MODES.ALBUM) !== SORT_MODES.ALBUM;
+
   const totalCopies = repeatedItems.reduce((sum, item) => sum + item.count, 0);
 
-  const scrollFabLayoutKey = useMemo(
-    () => `${repeatedItems.length}-${totalCopies}-${hydrated ? 1 : 0}`,
-    [repeatedItems.length, totalCopies, hydrated],
-  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (skipListQueryScrollRef.current) {
+      skipListQueryScrollRef.current = false;
+      return;
+    }
+    if (!listFilters.query.trim()) return;
+    const el = listResultsRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+  }, [listFilters.query]);
 
   const suggestions = useMemo(() => {
     const q = rawCode.trim().toLowerCase();
@@ -248,7 +287,7 @@ export default function RepeatedSection({
   }
 
   return (
-    <section className={styles.section} aria-label="Repes: tus repetidas e intercambio">
+    <section className={`${styles.section} ${styles.sectionWithFilterBar}`} aria-label="Repes: tus repetidas e intercambio">
       <header className={styles.header}>
         <p className={styles.eyebrow}>Repes</p>
         <h2 className={styles.title}>Cargá tus figus repetidas</h2>
@@ -405,15 +444,38 @@ export default function RepeatedSection({
         onAfterDeduction={(msg) => setRepesImportToast(msg)}
       />
 
+      {album ? (
+        <FilterBar variant="repes" filters={listFilters} onChange={setListFilters} />
+      ) : null}
+
       {repeatedItems.length === 0 ? (
         <EmptyState
           title="Todavía no agregaste figuritas repetidas."
           description="Cuando saques una repetida, cargá su código acá para llevar el conteo."
           icon="✦"
         />
+      ) : displayedItems.length === 0 ? (
+        <div ref={listResultsRef} className={styles.listResultsAnchor}>
+          <EmptyState
+            title="No encontramos repetidas con esa búsqueda"
+            description="Probá con otro código, jugador o país."
+            icon="?"
+            action={
+              listFiltersActive ? (
+                <button
+                  type="button"
+                  className={styles.resetListFilters}
+                  onClick={() => setListFilters(DEFAULT_LIST_FILTERS)}
+                >
+                  Limpiar búsqueda
+                </button>
+              ) : null
+            }
+          />
+        </div>
       ) : (
-        <ul className={styles.list} role="list">
-          {repeatedItems.map(({ sticker, count }) => {
+        <ul ref={listResultsRef} className={styles.list} role="list">
+          {displayedItems.map(({ sticker, count }) => {
             const isTeam = sticker.category === "team";
             const teamColorClass = isTeam ? `teamColor--${sticker.teamCode}` : "";
             return (
@@ -574,14 +636,6 @@ export default function RepeatedSection({
           </div>
         </div>
       ) : null}
-
-      <SectionScrollFab
-        enabled={Boolean(album)}
-        layoutKey={scrollFabLayoutKey}
-        variant="aboveBottomNav"
-        downLabel="Ir al final de Repes"
-        upLabel="Volver arriba de Repes"
-      />
     </section>
   );
 }

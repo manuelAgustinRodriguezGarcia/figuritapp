@@ -41,7 +41,10 @@ export const FILTER_OWNERSHIP = {
 
 /** Album grid sort modes (internal values). */
 export const SORT_MODES = Object.freeze({
+  /** Figurita 0 → última (orden oficial del álbum). */
   ALBUM: "album",
+  /** Figurita última → 0 (orden inverso). */
+  ALBUM_DESC: "album-desc",
   AZ: "az",
   ZA: "za",
 });
