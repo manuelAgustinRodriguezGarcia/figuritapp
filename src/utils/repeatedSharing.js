@@ -160,8 +160,8 @@ export function formatRepeatedShareText(duplicates, albumStickers) {
   if (entries.length === 0) return "";
 
   const groups = newGroups();
-  for (const { code, count } of entries) {
-    feedGroups(groups, code, count);
+  for (const { code } of entries) {
+    feedGroups(groups, code, 1);
   }
 
   const lines = [SHARE_TITLE];
@@ -295,27 +295,50 @@ function expandRightTokens(right) {
     .map((p) => p.trim())
     .filter(Boolean)
     .flatMap((part) => {
-      if (/^\s*0-0/i.test(part)) return [part.trim()];
+      const p = part.trim();
+      if (/^(?:0-0|00|0)(?:\s*\(|$)|\s+x\s*\d|\s*x\d+$/i.test(p)) return [p];
       if (/\(x/i.test(part) || /x\d+\s*$/i.test(part)) return [part.trim()];
       if (/\s/.test(part)) return part.split(/\s+/).filter(Boolean);
       return [part.trim()];
     });
 }
 
-function parsePaniniQuantityToken(tok) {
-  const t = tok.trim();
-  const m = t.match(/^0-0(?:\s*\(\s*x\s*(\d+)\s*\)|\s+x\s*(\d+)|x(\d+))?$/i);
+/** Panini logo (FWC00): 0-0, 00 o 0, con cantidad opcional. */
+function parsePaniniLogoQuantityToken(tok, { allowShort00 = false } = {}) {
+  const t = tok.trim().replace(/\s+/g, " ");
+  const pattern = allowShort00
+    ? /^(?:0-0|00|0)(?:\s*\(\s*x\s*(\d+)\s*\)|\s+x\s*(\d+)|x(\d+))?$/i
+    : /^0-0(?:\s*\(\s*x\s*(\d+)\s*\)|\s+x\s*(\d+)|x(\d+))?$/i;
+  const m = t.match(pattern);
   if (!m) {
-    return { ok: false, reason: "Solo se admite 0-0 en PANINI." };
+    return {
+      ok: false,
+      reason: allowShort00
+        ? "Para la Panini usá 0-0, 00 o 0."
+        : "Solo se admite 0-0 en PANINI.",
+    };
   }
   const c = Number(m[1] || m[2] || m[3] || 1);
   if (!Number.isInteger(c) || c < 1) {
     return { ok: false, reason: "Cantidad inválida para 0-0." };
   }
-  return { ok: true, count: c };
+  return { ok: true, count: c, fwc00: true };
+}
+
+function parsePaniniQuantityToken(tok) {
+  const r = parsePaniniLogoQuantityToken(tok, { allowShort00: false });
+  if (!r.ok) return r;
+  return { ok: true, count: r.count };
 }
 
 function parseNumericStickerToken(tok, section) {
+  if (section === "fwc") {
+    const logo = parsePaniniLogoQuantityToken(tok, { allowShort00: true });
+    if (logo.ok) {
+      return { ok: true, fwc00: true, count: logo.count };
+    }
+  }
+
   const t = tok.trim().replace(/\s+/g, " ");
   let n;
   let c = 1;
@@ -478,7 +501,8 @@ function parseHumanListLine(line, albumStickers, parsed, unknown, warnings) {
         unknown.push({ value: `${line} → ${tok}`, reason: r.reason });
         continue;
       }
-      pushParsed(`FWC${r.num}`, r.count, line, albumStickers, parsed, unknown);
+      const code = r.fwc00 ? "FWC00" : `FWC${r.num}`;
+      pushParsed(code, r.count, line, albumStickers, parsed, unknown);
     }
     return;
   }
@@ -611,18 +635,26 @@ function enrichStickerComparisonRow(sticker, count) {
 }
 
 /**
- * Une entradas parseadas (mismo código en varias líneas) sumando cantidades.
+ * Une entradas parseadas (mismo código en varias líneas).
+ * Por defecto suma cantidades (p. ej. importar repes). Con `uniqueOnly: true`, cada código cuenta como 1
+ * (listas útiles, comparar, borrar repes cambiadas) aunque el texto diga 13(x3).
  * @param {{ code: string, count: number, sourceLine?: string }[]} parsedList
+ * @param {{ uniqueOnly?: boolean }} [options]
  * @returns {{ code: string, count: number }[]}
  */
-export function mergeParsedRepeatedStickerCounts(parsedList) {
+export function mergeParsedRepeatedStickerCounts(parsedList, options = {}) {
+  const uniqueOnly = options.uniqueOnly === true;
   const map = new Map();
   for (const p of parsedList || []) {
     if (!p || typeof p !== "object") continue;
     const code = normalizeStickerCode(p.code);
     const cnt = Number(p.count);
     if (!code || !Number.isInteger(cnt) || cnt < 1) continue;
-    map.set(code, (map.get(code) || 0) + cnt);
+    if (uniqueOnly) {
+      if (!map.has(code)) map.set(code, 1);
+    } else {
+      map.set(code, (map.get(code) || 0) + cnt);
+    }
   }
   return [...map.entries()]
     .map(([code, count]) => ({ code, count }))
@@ -641,13 +673,13 @@ export function buildRepesTradeAwayPreview(parseResult, progressDuplicates, albu
     progressDuplicates && typeof progressDuplicates === "object" && !Array.isArray(progressDuplicates)
       ? progressDuplicates
       : {};
-  const merged = mergeParsedRepeatedStickerCounts(parseResult?.parsed || []);
+  const merged = mergeParsedRepeatedStickerCounts(parseResult?.parsed || [], { uniqueOnly: true });
   let totalEnLista = 0;
   const rows = [];
   for (const { code, count } of merged) {
     const requested = Number(count);
     if (!code || !Number.isInteger(requested) || requested < 1) continue;
-    totalEnLista += requested;
+    totalEnLista += 1;
     const sticker = getStickerByCode(code, stickers);
     if (!sticker) continue;
     const myDup = Math.max(0, Math.floor(Number(dup[code]) || 0));
@@ -741,26 +773,14 @@ export function compareRepeatedListWithProgress(parsedRepeated, albumStickers, o
   const stickers = Array.isArray(albumStickers) ? albumStickers : [];
   const ownedMap = owned && typeof owned === "object" && !Array.isArray(owned) ? owned : {};
 
-  const merged = new Map();
-  const list = Array.isArray(parsedRepeated) ? parsedRepeated : [];
-  for (const p of list) {
-    if (!p || typeof p !== "object") continue;
-    const code = p.code;
-    const cnt = Number(p.count);
-    if (!code || !Number.isInteger(cnt) || cnt < 1) continue;
-    merged.set(code, (merged.get(code) || 0) + cnt);
-  }
-
-  let receivedTotal = 0;
-  for (const c of merged.values()) {
-    receivedTotal += c;
-  }
+  const mergedList = mergeParsedRepeatedStickerCounts(parsedRepeated, { uniqueOnly: true });
+  const receivedTotal = mergedList.length;
 
   const useful = [];
   const alreadyOwned = [];
   const unknown = [];
 
-  for (const [code, count] of merged) {
+  for (const { code, count } of mergedList) {
     const sticker = getStickerByCode(code, stickers);
     if (!sticker) {
       unknown.push({ code, value: code, reason: "Este código no existe en el álbum." });
@@ -826,7 +846,7 @@ function groupsFromEnrichedRows(rows) {
   for (const row of rows) {
     const st = row.sticker;
     if (!st) continue;
-    feedGroups(groups, st.code, row.count);
+    feedGroups(groups, st.code, 1);
   }
   return groups;
 }
@@ -865,9 +885,14 @@ export function formatUsefulListForCopy(usefulRows) {
   Casos manuales (sin test runner):
 
   1) formatRepeatedShareText({ ARG19:1, NZL19:2, CPV20:3, FWC5:1, FWC6:1 }, stickers)
-     → incluye FWC 🌎: 5, 6 y ARG/NZL/CPV con (xN).
+     → cada código una vez (sin (xN) aunque tengas varias copias).
+
+  1b) mergeParsedRepeatedStickerCounts([{code:'ENG13',count:3}], { uniqueOnly: true })
+     → [{ code: ENG13, count: 1 }] para borrar/comparar.
 
   2) parse: "FWC 🌎: 5, 6\\nARG 🇦🇷: 6, 10, 13, 19" → FWC5,FWC6,ARG6,ARG10,ARG13,ARG19.
+
+  2b) parse: "FWC 🏆: 00\\nFWC 📜: 12" → FWC00, FWC12.
 
   3) Ruido: títulos y URLs → parsed vacío.
 

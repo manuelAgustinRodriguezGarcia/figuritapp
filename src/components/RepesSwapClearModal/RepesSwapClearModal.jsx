@@ -168,7 +168,7 @@ export default function RepesSwapClearModal({
     setAcknowledgedPartial(false);
 
     const pr = parseRepeatedShareText(pasteText, stickers);
-    const mergedQuick = mergeParsedRepeatedStickerCounts(pr.parsed);
+    const mergedQuick = mergeParsedRepeatedStickerCounts(pr.parsed, { uniqueOnly: true });
     if (mergedQuick.length === 0) {
       setParseError(
         "No encontramos figuritas en el texto. Pegá el mensaje FIGURITAPP con “Figus que me sirven” o una lista compatible (país + números).",

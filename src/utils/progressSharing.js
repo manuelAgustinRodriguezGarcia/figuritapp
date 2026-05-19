@@ -196,7 +196,35 @@ function parsePaniniQuantityToken(tok) {
   return { ok: true, count: c };
 }
 
+function parsePaniniLogoQuantityToken(tok, { allowShort00 = false } = {}) {
+  const t = tok.trim().replace(/\s+/g, " ");
+  const pattern = allowShort00
+    ? /^(?:0-0|00|0)(?:\s*\(\s*x\s*(\d+)\s*\)|\s+x\s*(\d+)|x(\d+))?$/i
+    : /^0-0(?:\s*\(\s*x\s*(\d+)\s*\)|\s+x\s*(\d+)|x(\d+))?$/i;
+  const m = t.match(pattern);
+  if (!m) {
+    return {
+      ok: false,
+      reason: allowShort00
+        ? "Para la Panini usá 0-0, 00 o 0."
+        : "Solo se admite 0-0 en PANINI.",
+    };
+  }
+  const c = Number(m[1] || m[2] || m[3] || 1);
+  if (!Number.isInteger(c) || c < 1) {
+    return { ok: false, reason: "Cantidad inválida para 0-0." };
+  }
+  return { ok: true, count: c, fwc00: true };
+}
+
 function parseNumericStickerToken(tok, section) {
+  if (section === "fwc") {
+    const logo = parsePaniniLogoQuantityToken(tok, { allowShort00: true });
+    if (logo.ok) {
+      return { ok: true, fwc00: true, count: logo.count };
+    }
+  }
+
   const t = tok.trim().replace(/\s+/g, " ");
   let n;
   let c = 1;
@@ -347,7 +375,7 @@ function parseStickerListLine(line, lineMode, albumStickers, owned, duplicates, 
         invalid.push({ value: `${line} → ${tok}`, sourceLine: line, reason: r.reason });
         continue;
       }
-      const code = `FWC${r.num}`;
+      const code = r.fwc00 ? "FWC00" : `FWC${r.num}`;
       if (lineMode === "owned") {
         pushOwned(code, line, albumStickers, owned, invalid);
       } else {
@@ -407,7 +435,7 @@ function parseLineToUnknownCandidates(line, albumStickers, invalid, warnings) {
         invalid.push({ value: `${line} → ${tok}`, sourceLine: line, reason: r.reason });
         continue;
       }
-      out.push({ code: `FWC${r.num}`, count: r.count, sourceLine: line });
+      out.push({ code: r.fwc00 ? "FWC00" : `FWC${r.num}`, count: r.count, sourceLine: line });
     }
     return out;
   }
